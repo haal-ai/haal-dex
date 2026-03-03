@@ -1,0 +1,101 @@
+{
+  "fileUpload": {
+    "title": "Téléversement de fichiers",
+    "dropzone": "Glissez-déposez des fichiers ici, ou cliquez pour parcourir",
+    "dropzoneActive": "Déposez les fichiers ici...",
+    "supported": "Formats acceptés : PPTX, DOCX, PDF, TXT, HTML, MD",
+    "unsupported": "Format non pris en charge : {{format}}",
+    "uploadError": "Échec du téléversement : {{reason}}",
+    "preview": "Aperçu du fichier",
+    "format": "Format : {{format}}",
+    "size": "Taille : {{size}}",
+    "remove": "Supprimer"
+  },
+  "chat": {
+    "title": "Discussion",
+    "placeholder": "Saisissez un message...",
+    "send": "Envoyer",
+    "thinking": "Réflexion en cours...",
+    "error": "Échec de l'envoi du message",
+    "sessionContext": "Contexte de la session"
+  },
+  "pipeline": {
+    "title": "Exécution du pipeline",
+    "start": "Démarrer le pipeline",
+    "stop": "Arrêter",
+    "status": "Statut",
+    "pending": "En attente",
+    "running": "En cours",
+    "completed": "Terminé",
+    "failed": "Échoué",
+    "agent": "Agent",
+    "step": "Étape {{number}}",
+    "error": "Erreur du pipeline : {{message}}"
+  },
+  "output": {
+    "title": "Résultat",
+    "preview": "Aperçu",
+    "export": "Exporter",
+    "exportPdf": "Exporter en PDF",
+    "exportXml": "Exporter en XML",
+    "exportDocx": "Exporter en DOCX",
+    "noOutput": "Aucun résultat disponible",
+    "template": "Modèle : {{name}}"
+  },
+  "config": {
+    "title": "Configuration",
+    "pipelines": "Pipelines",
+    "agents": "Agents",
+    "models": "Modèles",
+    "tools": "Outils",
+    "faissIndexes": "Index FAISS",
+    "templates": "Modèles de documents",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "create": "Créer",
+    "edit": "Modifier",
+    "validation": "Erreur de validation : {{message}}"
+  },
+  "metrics": {
+    "title": "Métriques",
+    "inputTokens": "Jetons d'entrée",
+    "outputTokens": "Jetons de sortie",
+    "llmCalls": "Appels LLM",
+    "exportCsv": "Exporter en CSV",
+    "perAgent": "Par agent",
+    "total": "Total"
+  },
+  "replay": {
+    "title": "Relecture",
+    "timeline": "Chronologie",
+    "step": "Étape {{number}}",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "input": "Entrée",
+    "output": "Sortie",
+    "prompts": "Invites",
+    "responses": "Réponses"
+  },
+  "auth": {
+    "login": "Connexion",
+    "logout": "Déconnexion",
+    "username": "Nom d'utilisateur",
+    "password": "Mot de passe",
+    "loginError": "Identifiants invalides",
+    "unauthorized": "Accès refusé",
+    "sessionExpired": "Session expirée, veuillez vous reconnecter"
+  },
+  "theme": {
+    "title": "Thème",
+    "dark": "Sombre",
+    "light": "Clair",
+    "toggle": "Changer de thème"
+  },
+  "language": {
+    "title": "Langue",
+    "en": "Anglais",
+    "fr": "Français",
+    "switch": "Changer de langue"
+  }
+}

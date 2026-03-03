@@ -1,0 +1,99 @@
+"""ModelFactory: creates Strands model provider instances from ProviderConfig.
+
+Supports Bedrock, OpenAI-compatible, and GitHub Copilot providers.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from app.models.pipeline import ProviderConfig
+
+# Try importing Strands SDK model providers; fall back to None if unavailable.
+try:
+    from strands.models import BedrockModel
+except ImportError:
+    BedrockModel = None  # type: ignore[assignment,misc]
+
+try:
+    from strands.models.openai import OpenAIModel
+except ImportError:
+    OpenAIModel = None  # type: ignore[assignment,misc]
+
+from app.engine.github_copilot_model import GitHubCopilotModel
+
+
+@dataclass
+class HealthStatus:
+    """Result of a provider health check."""
+
+    healthy: bool
+    provider: str
+    error: str | None = None
+
+
+class ModelFactory:
+    """Creates Strands model provider instances from ProviderConfig."""
+
+    def create_model(self, provider_config: ProviderConfig):
+        """Create the appropriate Strands model provider based on config.
+
+        Args:
+            provider_config: Provider configuration specifying type, model, and credentials.
+
+        Returns:
+            A model provider instance (BedrockModel, OpenAIModel, or GitHubCopilotModel).
+
+        Raises:
+            ValueError: If the provider_type is unsupported or the required SDK class is unavailable.
+        """
+        match provider_config.provider_type:
+            case "bedrock":
+                if BedrockModel is None:
+                    raise ValueError(
+                        "strands.models.BedrockModel is not available. "
+                        "Install strands-agents to use the Bedrock provider."
+                    )
+                return BedrockModel(
+                    model_id=provider_config.model_id,
+                    region_name=provider_config.region,
+                    temperature=provider_config.temperature,
+                    max_tokens=provider_config.max_tokens,
+                )
+            case "openai_compatible":
+                if OpenAIModel is None:
+                    raise ValueError(
+                        "strands.models.openai.OpenAIModel is not available. "
+                        "Install strands-agents to use the OpenAI-compatible provider."
+                    )
+                client_args: dict = {"api_key": provider_config.api_key}
+                if provider_config.endpoint:
+                    client_args["base_url"] = provider_config.endpoint
+                return OpenAIModel(
+                    client_args=client_args,
+                    model_id=provider_config.model_id,
+                )
+            case "github_copilot":
+                return GitHubCopilotModel(
+                    oauth_config=provider_config.oauth_config,
+                    model_id=provider_config.model_id,
+                )
+            case _:
+                raise ValueError(f"Unsupported provider type: {provider_config.provider_type}")
+
+    async def check_provider_health(self, provider_config: ProviderConfig) -> HealthStatus:
+        """Verify connectivity to the configured provider.
+
+        Attempts to create the model instance. If creation succeeds, the
+        provider is considered healthy. Any exception during creation is
+        captured and returned as an unhealthy status.
+        """
+        try:
+            self.create_model(provider_config)
+            return HealthStatus(healthy=True, provider=provider_config.provider_type)
+        except Exception as e:
+            return HealthStatus(
+                healthy=False,
+                provider=provider_config.provider_type,
+                error=str(e),
+            )

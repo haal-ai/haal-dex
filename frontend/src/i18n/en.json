@@ -1,0 +1,101 @@
+{
+  "fileUpload": {
+    "title": "File Upload",
+    "dropzone": "Drag and drop files here, or click to browse",
+    "dropzoneActive": "Drop files here...",
+    "supported": "Supported formats: PPTX, DOCX, PDF, TXT, HTML, MD",
+    "unsupported": "Unsupported format: {{format}}",
+    "uploadError": "Upload failed: {{reason}}",
+    "preview": "File Preview",
+    "format": "Format: {{format}}",
+    "size": "Size: {{size}}",
+    "remove": "Remove"
+  },
+  "chat": {
+    "title": "Chat",
+    "placeholder": "Type a message...",
+    "send": "Send",
+    "thinking": "Thinking...",
+    "error": "Failed to send message",
+    "sessionContext": "Session Context"
+  },
+  "pipeline": {
+    "title": "Pipeline Execution",
+    "start": "Start Pipeline",
+    "stop": "Stop",
+    "status": "Status",
+    "pending": "Pending",
+    "running": "Running",
+    "completed": "Completed",
+    "failed": "Failed",
+    "agent": "Agent",
+    "step": "Step {{number}}",
+    "error": "Pipeline error: {{message}}"
+  },
+  "output": {
+    "title": "Output",
+    "preview": "Preview",
+    "export": "Export",
+    "exportPdf": "Export PDF",
+    "exportXml": "Export XML",
+    "exportDocx": "Export DOCX",
+    "noOutput": "No output available",
+    "template": "Template: {{name}}"
+  },
+  "config": {
+    "title": "Configuration",
+    "pipelines": "Pipelines",
+    "agents": "Agents",
+    "models": "Models",
+    "tools": "Tools",
+    "faissIndexes": "FAISS Indexes",
+    "templates": "Templates",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "create": "Create New",
+    "edit": "Edit",
+    "validation": "Validation Error: {{message}}"
+  },
+  "metrics": {
+    "title": "Metrics",
+    "inputTokens": "Input Tokens",
+    "outputTokens": "Output Tokens",
+    "llmCalls": "LLM Calls",
+    "exportCsv": "Export CSV",
+    "perAgent": "Per Agent",
+    "total": "Total"
+  },
+  "replay": {
+    "title": "Replay",
+    "timeline": "Timeline",
+    "step": "Step {{number}}",
+    "previous": "Previous",
+    "next": "Next",
+    "input": "Input",
+    "output": "Output",
+    "prompts": "Prompts",
+    "responses": "Responses"
+  },
+  "auth": {
+    "login": "Log In",
+    "logout": "Log Out",
+    "username": "Username",
+    "password": "Password",
+    "loginError": "Invalid credentials",
+    "unauthorized": "Access denied",
+    "sessionExpired": "Session expired, please log in again"
+  },
+  "theme": {
+    "title": "Theme",
+    "dark": "Dark",
+    "light": "Light",
+    "toggle": "Toggle Theme"
+  },
+  "language": {
+    "title": "Language",
+    "en": "English",
+    "fr": "French",
+    "switch": "Switch Language"
+  }
+}
