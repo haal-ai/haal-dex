@@ -29,7 +29,7 @@ class DocumentMetadata:
 class Template:
     id: str
     name: str
-    format: str  # "xml" | "pdf" | "docx" | "md" | "html"
+    format: str  # "pdf" | "docx" | "md" | "html" | "pptx"
     structure: dict
     validation_rules: list[ValidationRule]
     required_metadata: list[str]  # e.g. ["author", "date", "version", "classification"]

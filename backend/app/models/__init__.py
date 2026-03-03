@@ -10,6 +10,7 @@ from app.models.files import (
     IngestedFile,
 )
 from app.models.metrics import AgentMetrics, SessionMetrics
+from app.models.personality import Personality, PersonalityAccess
 from app.models.pipeline import (
     AgentConfig,
     OAuthConfig,
@@ -46,6 +47,9 @@ __all__ = [
     # Metrics
     "AgentMetrics",
     "SessionMetrics",
+    # Personalities
+    "Personality",
+    "PersonalityAccess",
     # Pipeline
     "AgentConfig",
     "OAuthConfig",

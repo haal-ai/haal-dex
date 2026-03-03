@@ -1,4 +1,5 @@
 import { render, screen, waitFor, cleanup, act } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { I18nProvider, resetI18nInstance } from '../../providers/I18nProvider'
 import { AuthProvider } from '../../hooks/useAuth'
@@ -42,14 +43,61 @@ const mockFetch = vi.fn()
 vi.stubGlobal('fetch', mockFetch)
 
 function setupAuthFetch() {
-  mockFetch.mockImplementation(async (url: string) => {
+  mockFetch.mockImplementation(async (url: string, init?: RequestInit) => {
     if (typeof url === 'string' && url.includes('/api/auth/me')) {
       return {
         ok: true,
         json: async () => ({ user_id: 'u1', username: 'testuser', roles: ['user'] }),
       }
     }
-    return { ok: false, json: async () => ({}) }
+
+    if (
+      typeof url === 'string' &&
+      url.includes('/api/config/pipelines') &&
+      (!init || init.method === undefined || init.method === 'GET')
+    ) {
+      return {
+        ok: true,
+        json: async () => ({
+          pipelines: [
+            {
+              name: 'test-pipeline',
+              config: {
+                name: 'test-pipeline',
+                agents: [
+                  {
+                    name: 'agent-1',
+                    model: 'bedrock/test',
+                    provider_config: {
+                      provider_type: 'bedrock',
+                      model_id: 'anthropic.claude-sonnet-4-6',
+                      temperature: 0.7,
+                      max_tokens: 2048,
+                    },
+                    description: '',
+                    faiss_indexes: [],
+                    tools: [],
+                  },
+                ],
+                output: { template: '', formats: [] },
+                execution_timeout: 600,
+              },
+            },
+          ],
+        }),
+      }
+    }
+
+    if (
+      typeof url === 'string' &&
+      url.includes('/api/pipeline/sessions/') &&
+      url.includes('/config') &&
+      init?.method === 'POST'
+    ) {
+      return { ok: true, statusText: 'OK', json: async () => ({ ok: true }) }
+    }
+
+    return { ok: false, statusText: 'Not Found', json: async () => ({}) }
   })
 }
 
@@ -64,6 +112,15 @@ function renderTimeline(sessionId = 'test-session') {
       </I18nProvider>
     </AuthProvider>
   )
+}
+
+async function clickStart() {
+  const user = userEvent.setup()
+  await waitFor(() => {
+    expect(screen.getByRole('button', { name: 'Start' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Start' })).not.toBeDisabled()
+  })
+  await user.click(screen.getByRole('button', { name: 'Start' }))
 }
 
 function simulateWsMessage(data: Record<string, unknown>) {
@@ -179,6 +236,9 @@ describe('ExecutionTimeline', () => {
   describe('WebSocket connection', () => {
     it('connects to execution WebSocket with session ID and token', async () => {
       renderTimeline('exec-session')
+
+      await clickStart()
+
       await waitFor(() => {
         expect(WebSocket).toHaveBeenCalled()
         const url = (WebSocket as unknown as ReturnType<typeof vi.fn>).mock.calls[0][0] as string
@@ -191,6 +251,9 @@ describe('ExecutionTimeline', () => {
   describe('shows agent status updates (pending → running → completed)', () => {
     it('shows agent as running when agent_start event arrives', async () => {
       renderTimeline()
+
+      await clickStart()
+
       await waitFor(() => {
         expect(mockWsInstance).not.toBeNull()
       })
@@ -208,6 +271,9 @@ describe('ExecutionTimeline', () => {
 
     it('shows agent as completed when agent_complete event arrives', async () => {
       renderTimeline()
+
+      await clickStart()
+
       await waitFor(() => {
         expect(mockWsInstance).not.toBeNull()
       })
@@ -227,6 +293,9 @@ describe('ExecutionTimeline', () => {
 
     it('shows step number for each agent', async () => {
       renderTimeline()
+
+      await clickStart()
+
       await waitFor(() => {
         expect(mockWsInstance).not.toBeNull()
       })
@@ -242,6 +311,9 @@ describe('ExecutionTimeline', () => {
 
     it('tracks multiple agents through status transitions', async () => {
       renderTimeline()
+
+      await clickStart()
+
       await waitFor(() => {
         expect(mockWsInstance).not.toBeNull()
       })
@@ -268,6 +340,9 @@ describe('ExecutionTimeline', () => {
   describe('shows failed agent status', () => {
     it('shows agent as failed when agent_fail event arrives', async () => {
       renderTimeline()
+
+      await clickStart()
+
       await waitFor(() => {
         expect(mockWsInstance).not.toBeNull()
       })
@@ -287,6 +362,9 @@ describe('ExecutionTimeline', () => {
 
     it('logs the failure error message', async () => {
       renderTimeline()
+
+      await clickStart()
+
       await waitFor(() => {
         expect(mockWsInstance).not.toBeNull()
       })
@@ -307,9 +385,12 @@ describe('ExecutionTimeline', () => {
     })
   })
 
-  describe('shows pipeline completion', () => {
+  describe('shows pipeline completion status', () => {
     it('shows pipeline completed status', async () => {
       renderTimeline()
+
+      await clickStart()
+
       await waitFor(() => {
         expect(mockWsInstance).not.toBeNull()
       })
@@ -326,6 +407,9 @@ describe('ExecutionTimeline', () => {
 
     it('shows pipeline failed status', async () => {
       renderTimeline()
+
+      await clickStart()
+
       await waitFor(() => {
         expect(mockWsInstance).not.toBeNull()
       })
@@ -342,6 +426,9 @@ describe('ExecutionTimeline', () => {
 
     it('adds pipeline completion to log entries', async () => {
       renderTimeline()
+
+      await clickStart()
+
       await waitFor(() => {
         expect(mockWsInstance).not.toBeNull()
       })
@@ -360,9 +447,12 @@ describe('ExecutionTimeline', () => {
     })
   })
 
-  describe('shows error messages', () => {
+  describe('shows websocket error events', () => {
     it('shows error on WebSocket error event', async () => {
       renderTimeline()
+
+      await clickStart()
+
       await waitFor(() => {
         expect(mockWsInstance).not.toBeNull()
       })
@@ -378,9 +468,12 @@ describe('ExecutionTimeline', () => {
     })
   })
 
-  describe('shows currently active agent', () => {
+  describe('active agent indicator', () => {
     it('highlights the currently running agent', async () => {
       renderTimeline()
+
+      await clickStart()
+
       await waitFor(() => {
         expect(mockWsInstance).not.toBeNull()
       })
@@ -397,6 +490,9 @@ describe('ExecutionTimeline', () => {
 
     it('removes active agent indicator when agent completes', async () => {
       renderTimeline()
+
+      await clickStart()
+
       await waitFor(() => {
         expect(mockWsInstance).not.toBeNull()
       })
@@ -422,6 +518,9 @@ describe('ExecutionTimeline', () => {
   describe('streams live log entries', () => {
     it('adds log entries as agent events arrive', async () => {
       renderTimeline()
+
+      await clickStart()
+
       await waitFor(() => {
         expect(mockWsInstance).not.toBeNull()
       })
@@ -457,6 +556,8 @@ describe('ExecutionTimeline', () => {
       resetI18nInstance()
       renderTimeline()
 
+      await clickStart()
+
       await waitFor(() => {
         expect(mockWsInstance).not.toBeNull()
       })
@@ -474,6 +575,8 @@ describe('ExecutionTimeline', () => {
       localStorage.setItem('intent-language', 'fr')
       resetI18nInstance()
       renderTimeline()
+
+      await clickStart()
 
       await waitFor(() => {
         expect(mockWsInstance).not.toBeNull()

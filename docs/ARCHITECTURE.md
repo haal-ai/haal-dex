@@ -46,7 +46,7 @@ Components:
 |-----------|---------------|
 | `DropZone` | Drag-and-drop file upload with format validation and preview. Accepts PPTX, DOCX, PDF, TXT, HTML, MD. |
 | `ChatPanel` | Bilingual (EN/FR) natural language chat. Messages stream in real-time over WebSocket. |
-| `OutputViewer` | Document preview and export (PDF, XML, DOCX). |
+| `OutputViewer` | Document preview and export (PDF, DOCX, PPTX, Markdown, HTML). |
 | `ExecutionTimeline` | Real-time agent status display (pending/running/completed/failed) with live log streaming. |
 | `MetricsDashboard` | Token counts and LLM call metrics per agent during execution. |
 | `ReplayViewer` | Step-by-step replay of past pipeline executions. |
@@ -131,7 +131,7 @@ Tool permissions are enforced at the `AgentFactory` level — agents only receiv
 | `MetricsCollector` | Tracks input/output tokens and LLM call counts per agent per session, exports CSV |
 | `ReplayEngine` | Loads past executions from stored logs for step-by-step replay |
 | `TemplateRegistry` | Stores and manages output templates (format, structure, validation rules, metadata) |
-| `OutputGenerator` | Renders documents via Jinja2 templates, validates against rules, exports to PDF/XML/DOCX |
+| `OutputGenerator` | Renders documents via Jinja2 templates, validates against rules, exports to PDF/DOCX/PPTX/Markdown/HTML |
 | `AuthService` | JWT authentication, token issuance/validation, RBAC enforcement |
 
 ### 7. FAISS Index Manager

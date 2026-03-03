@@ -19,9 +19,13 @@ Requirements: 2.1, 2.3, 2.4, 17.1
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Protocol
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+
+from app.engine.tools import ALL_TOOLS
+from app.services.personality_store import PersonalityStore
 
 router = APIRouter(tags=["chat"])
 
@@ -44,6 +48,8 @@ class ConversationContext:
 
     session_id: str
     messages: list[ChatMessage] = field(default_factory=list)
+    personality_id: str = "default"
+    agent: Any | None = None
 
 
 _conversations: dict[str, ConversationContext] = {}
@@ -83,23 +89,36 @@ class _DefaultChatAgent:
         return f"I received your message: {last}"
 
 
-def _try_create_strands_agent() -> ChatAgent:
+def _get_personality_store() -> PersonalityStore:
+    backend_dir = Path(__file__).resolve().parents[2]
+    store_path = backend_dir / "personalities_store.json"
+    return PersonalityStore(store_path)
+
+
+def _try_create_strands_agent(
+    *,
+    system_prompt: str,
+    allowed_tool_names: list[str],
+    invocation_state: dict[str, Any],
+) -> ChatAgent:
     """Attempt to create a real strands.Agent; fall back to default."""
     try:
         from strands import Agent  # type: ignore[import-untyped]
 
         class _StrandsWrapper:
             def __init__(self) -> None:
-                self._agent = Agent(
-                    system_prompt=(
-                        "You are a helpful bilingual assistant (English/French). "
-                        "Respond in the same language the user writes in."
-                    ),
-                )
+                tools: list[object] = []
+                for name in allowed_tool_names:
+                    tool_fn = ALL_TOOLS.get(name)
+                    if tool_fn is not None:
+                        tools.append(tool_fn)
+
+                self._agent = Agent(system_prompt=system_prompt, tools=tools)
+                self._invocation_state = invocation_state
 
             async def respond(self, messages: list[dict[str, str]]) -> str:
                 prompt = messages[-1]["content"] if messages else ""
-                result = self._agent(prompt)
+                result = self._agent(prompt, invocation_state=self._invocation_state)
                 return str(result)
 
         return _StrandsWrapper()
@@ -107,22 +126,19 @@ def _try_create_strands_agent() -> ChatAgent:
         return _DefaultChatAgent()
 
 
-# Module-level agent instance (lazy-initialised on first connection).
-_chat_agent: ChatAgent | None = None
+_chat_agent_override: ChatAgent | None = None
 
 
 def get_chat_agent() -> ChatAgent:
-    """Return the module-level chat agent, creating it on first call."""
-    global _chat_agent
-    if _chat_agent is None:
-        _chat_agent = _try_create_strands_agent()
-    return _chat_agent
+    """Return the chat agent override if set, else a default agent."""
+    global _chat_agent_override
+    return _chat_agent_override or _DefaultChatAgent()
 
 
-def set_chat_agent(agent: ChatAgent) -> None:
+def set_chat_agent(agent: ChatAgent | None) -> None:
     """Override the chat agent (useful for testing)."""
-    global _chat_agent
-    _chat_agent = agent
+    global _chat_agent_override
+    _chat_agent_override = agent
 
 
 # ---------------------------------------------------------------------------
@@ -141,7 +157,7 @@ async def ws_chat(websocket: WebSocket, session_id: str) -> None:
     await websocket.accept()
 
     context = _get_or_create_context(session_id)
-    agent = get_chat_agent()
+    store = _get_personality_store()
 
     try:
         while True:
@@ -149,12 +165,38 @@ async def ws_chat(websocket: WebSocket, session_id: str) -> None:
 
             msg_type = data.get("type")
             content = data.get("content", "")
+            personality_id = data.get("personality_id")
 
             if msg_type != "message":
                 await websocket.send_json(
                     {"type": "error", "content": f"Unknown message type: {msg_type}", "session_id": session_id}
                 )
                 continue
+
+            if isinstance(personality_id, str) and personality_id and personality_id != context.personality_id:
+                context.personality_id = personality_id
+                context.messages.clear()
+                context.agent = None
+
+            if context.agent is None:
+                override = get_chat_agent()
+                if not isinstance(override, _DefaultChatAgent):
+                    context.agent = override
+                else:
+                    personality = store.get(context.personality_id) or store.get("default")
+                    if personality is None:
+                        personality = store.list()[0] if store.list() else None
+
+                    if personality is None:
+                        context.agent = _DefaultChatAgent()
+                    else:
+                        access_state = personality.access.to_invocation_state(store.base_dir)
+                        invocation_state = {**access_state, "personality_id": personality.id}
+                        context.agent = _try_create_strands_agent(
+                            system_prompt=personality.combined_system_prompt(),
+                            allowed_tool_names=list(personality.access.allowed_tools),
+                            invocation_state=invocation_state,
+                        )
 
             # Record user message in context
             context.messages.append(ChatMessage(role="user", content=content))
@@ -163,7 +205,7 @@ async def ws_chat(websocket: WebSocket, session_id: str) -> None:
             agent_messages = [{"role": m.role, "content": m.content} for m in context.messages]
 
             try:
-                response_text = await agent.respond(agent_messages)
+                response_text = await context.agent.respond(agent_messages)
             except Exception as exc:
                 await websocket.send_json(
                     {"type": "error", "content": str(exc), "session_id": session_id}

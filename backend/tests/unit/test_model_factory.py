@@ -102,6 +102,31 @@ class TestCreateModelBedrock:
         )
         assert result is mock_instance
 
+    def test_prefers_inference_profile_id_when_provided(self, factory: ModelFactory):
+        mock_bedrock_cls = MagicMock()
+        mock_instance = MagicMock()
+        mock_bedrock_cls.return_value = mock_instance
+
+        config = ProviderConfig(
+            provider_type="bedrock",
+            model_id="anthropic.claude-sonnet-4-6",
+            inference_profile_id="arn:aws:bedrock:us-east-1:123456789012:inference-profile/example",
+            region="us-east-1",
+            temperature=0.2,
+            max_tokens=256,
+        )
+
+        with patch("app.engine.model_factory.BedrockModel", mock_bedrock_cls):
+            result = factory.create_model(config)
+
+        mock_bedrock_cls.assert_called_once_with(
+            model_id="arn:aws:bedrock:us-east-1:123456789012:inference-profile/example",
+            region_name="us-east-1",
+            temperature=0.2,
+            max_tokens=256,
+        )
+        assert result is mock_instance
+
     def test_raises_when_bedrock_sdk_unavailable(self, factory: ModelFactory):
         config = ProviderConfig(
             provider_type="bedrock",

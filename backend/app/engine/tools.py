@@ -12,6 +12,7 @@ import os
 import platform
 import subprocess
 import sys
+from pathlib import Path
 
 # Try importing Strands SDK @tool decorator; fall back to identity decorator.
 try:
@@ -27,25 +28,61 @@ except ImportError:
         return lambda f: f
 
 
-@tool
-def read_file(path: str) -> str:
+def _is_path_allowed(path: str, allowed_roots: list[str] | None) -> bool:
+    if allowed_roots is None:
+        return True
+
+    try:
+        target = Path(path).resolve()
+    except Exception:
+        return False
+
+    for root in allowed_roots:
+        try:
+            root_path = Path(root).resolve()
+            common = os.path.commonpath([str(target), str(root_path)])
+            if common == str(root_path):
+                return True
+        except Exception:
+            continue
+
+    return False
+
+
+def _get_invocation_state(tool_context) -> dict:
+    if tool_context is None:
+        return {}
+    state = getattr(tool_context, "invocation_state", None)
+    return state if isinstance(state, dict) else {}
+
+
+@tool(context=True)
+def read_file(path: str, tool_context=None) -> str:
     """Read file contents from the local file system.
 
     Args:
         path: Path to the file to read
     """
+    state = _get_invocation_state(tool_context)
+    allowed_roots = state.get("allowed_read_roots")
+    if isinstance(allowed_roots, list) and not _is_path_allowed(path, allowed_roots):
+        return f"Error: access denied to read path: {path}"
     with open(path, "r", encoding="utf-8") as f:
         return f.read()
 
 
-@tool
-def write_file(path: str, content: str) -> str:
+@tool(context=True)
+def write_file(path: str, content: str, tool_context=None) -> str:
     """Write content to a file on the local file system.
 
     Args:
         path: Path to the file to write
         content: Content to write to the file
     """
+    state = _get_invocation_state(tool_context)
+    allowed_roots = state.get("allowed_write_roots")
+    if isinstance(allowed_roots, list) and not _is_path_allowed(path, allowed_roots):
+        return f"Error: access denied to write path: {path}"
     parent = os.path.dirname(path)
     if parent:
         os.makedirs(parent, exist_ok=True)
@@ -123,6 +160,9 @@ if _STRANDS_AVAILABLE:
             query: The search query text
             index_id: The FAISS index to query (0-3)
         """
+        allowed_indexes = tool_context.invocation_state.get("allowed_faiss_indexes")
+        if isinstance(allowed_indexes, list) and index_id not in allowed_indexes:
+            return f"Error: access denied to FAISS index {index_id}"
         faiss_manager = tool_context.invocation_state.get("faiss_manager")
         if faiss_manager is None:
             return "Error: FAISS manager not available"
@@ -142,6 +182,9 @@ else:
         """
         if tool_context is None:
             return "Error: FAISS manager not available"
+        allowed_indexes = tool_context.invocation_state.get("allowed_faiss_indexes")
+        if isinstance(allowed_indexes, list) and index_id not in allowed_indexes:
+            return f"Error: access denied to FAISS index {index_id}"
         faiss_manager = tool_context.invocation_state.get("faiss_manager")
         if faiss_manager is None:
             return "Error: FAISS manager not available"

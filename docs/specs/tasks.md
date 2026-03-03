@@ -219,7 +219,7 @@ Incremental implementation of the INTENT full-stack application: a configurable 
 
   - [x] 14.2 Implement OutputGenerator with Jinja2 rendering, validation, and export
     - Create `backend/app/services/output_generator.py` with `OutputGenerator` class
-    - Implement `render()` (Jinja2 template application), `validate()` (check rules, report violations), `export()` (PDF via WeasyPrint, DOCX via python-docx, XML via lxml, Markdown, HTML)
+    - Implement `render()` (Jinja2 template application), `validate()` (check rules, report violations), `export()` (PDF via WeasyPrint, DOCX via python-docx, Markdown, HTML, PPTX)
     - Include required metadata (author, date, version, classification) in each document
     - Encrypt output if configured (delegate to EncryptionService)
     - Create `GET /api/output/{session_id}/preview` and `GET /api/output/{session_id}/export` endpoints
@@ -232,7 +232,7 @@ Incremental implementation of the INTENT full-stack application: a configurable 
     - **Validates: Requirements 7.3**
     - **Property 16: Validation failure reports violated rules** — For documents violating rules, report exactly which rules were violated
     - **Validates: Requirements 7.4**
-    - **Property 17: Export format matches request** — For any valid session and format (PDF/XML/DOCX), export produces document in requested format
+    - **Property 17: Export format matches request** — For any valid session and format (PDF/DOCX), export produces document in requested format
     - **Validates: Requirements 8.3**
 
 - [x] 15. Backend API wiring — pipeline execution and WebSocket endpoints
@@ -295,7 +295,7 @@ Incremental implementation of the INTENT full-stack application: a configurable 
   - [x] 18.4 Implement OutputViewer component with preview and export
     - Create `frontend/src/components/OutputViewer.tsx`
     - Display document preview against selected template
-    - Export buttons for PDF, XML, DOCX formats
+    - Export buttons for PDF, DOCX, PPTX formats
     - _Requirements: 8.1, 8.2, 8.3_
 
   - [x] 18.5 Implement ConfigPanel component (admin only)

@@ -6,8 +6,8 @@ The backend orchestrates a sequential chain of AI agents using the AWS Strands P
 
 ## Prerequisites
 
-- Python 3.11+
-- Node.js 18+
+- Python 3.11+ (recommended on Windows: Python 3.12)
+- Node.js 18+ (recommended: Node.js 20.19+)
 - npm 9+
 
 ## Project Structure
@@ -51,6 +51,8 @@ cd backend
 pip install -e ".[dev]"
 ```
 
+If you have multiple Python versions installed, ensure you are using the intended one (e.g. Python 3.12 on Windows).
+
 ### Environment variables
 
 All settings are loaded from environment variables with sensible defaults for local development. Key variables:
@@ -71,6 +73,17 @@ All settings are loaded from environment variables with sensible defaults for lo
 | `INTENT_LOG_DIR` | `./logs` | Execution log directory |
 | `INTENT_FAISS_INDEX_DIR` | `./faiss_indexes` | FAISS index directory |
 | `INTENT_TEMPLATE_DIR` | `./templates` | Jinja2 template directory |
+
+### AWS Bedrock (local development)
+
+If you use `provider_type: "bedrock"` in pipeline configs, credentials and region are resolved from standard AWS configuration:
+
+- Use an AWS CLI profile (including SSO) from `~/.aws/config` and `~/.aws/credentials`.
+- Set `AWS_PROFILE` to the profile name you want the backend to use.
+- Ensure a region is available via `AWS_REGION` or `AWS_DEFAULT_REGION` (or via the selected profile's `region` setting).
+- For SSO profiles, run `aws sso login --profile <profile>` before starting the backend.
+
+Pipeline configs may omit the Bedrock `region` field; the backend will fall back to `AWS_REGION` / `AWS_DEFAULT_REGION` / `~/.aws/config` (for `AWS_PROFILE`, defaulting to `default`).
 
 ### Run the backend
 
@@ -99,6 +112,15 @@ npm run dev
 
 The UI will be available at `http://localhost:5173`.
 
+During local development the frontend calls backend endpoints at `/api/...` (and WebSockets under `/api/ws/...`). Ensure your Vite dev server proxies `/api` to the backend (this repo is configured accordingly).
+
+## Default Dev Credentials
+
+For local development/testing, the backend ships with an in-memory user store:
+
+- Username: `admin` Password: `admin`
+- Username: `user` Password: `user`
+
 ### Build for production
 
 ```bash
@@ -118,7 +140,7 @@ npm run build
 | `POST` | `/api/pipeline/execute` | Execute a pipeline |
 | `GET/POST/PUT/DELETE` | `/api/config/pipelines` | Pipeline configuration CRUD |
 | `GET` | `/api/output/{session_id}/preview` | Preview generated output |
-| `GET` | `/api/output/{session_id}/export?format=pdf\|xml\|docx` | Export output |
+| `GET` | `/api/output/{session_id}/export?format=pdf\|docx\|md\|html\|pptx` | Export output |
 | `GET` | `/api/metrics/{session_id}` | Session metrics |
 | `GET` | `/api/metrics/{session_id}/csv` | Export metrics as CSV |
 | `GET` | `/api/replay/{session_id}` | Load replay data |
@@ -183,7 +205,7 @@ The frontend test suite includes 138 tests across 14 test files, covering unit t
 - Python 3.11+, FastAPI, Uvicorn
 - AWS Strands Python SDK (Agent, GraphBuilder, model providers)
 - FAISS (vector similarity search)
-- Jinja2 (template rendering), WeasyPrint (PDF), python-docx (DOCX), lxml (XML)
+- Jinja2 (template rendering), WeasyPrint (PDF), python-docx (DOCX), python-pptx (PPTX)
 - Cryptography (Fernet/AES-GCM encryption)
 - Hypothesis (property-based testing), pytest
 

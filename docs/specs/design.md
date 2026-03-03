@@ -104,7 +104,7 @@ The application is containerized with Docker. Frontend and backend can run as se
 **Responsibilities:**
 - File drag-and-drop with format detection and preview
 - Bilingual (EN/FR) chat interface with real-time streaming display
-- Output document preview and export (PDF, XML, DOCX)
+- Output document preview and export (PDF, DOCX, PPTX, Markdown, HTML)
 - Real-time execution timeline with agent status
 - Pipeline configuration panel (admin only)
 - Theme switching (dark/light) and language switching
@@ -116,7 +116,7 @@ The application is containerized with Docker. Frontend and backend can run as se
 |-----------|-------------|
 | `DropZone` | Accepts files via drag-and-drop, validates formats (PPTX, DOCX, PDF, TXT, HTML, MD), shows preview |
 | `ChatPanel` | Bilingual NL input, WebSocket message streaming, session context |
-| `OutputViewer` | Renders document preview, export buttons for PDF/XML/DOCX |
+| `OutputViewer` | Renders document preview, export buttons for PDF/DOCX/PPTX |
 | `ExecutionTimeline` | Real-time agent status (pending/running/completed/failed), live log stream |
 | `ConfigPanel` | CRUD for Pipeline_Config: agent sequence, model assignments, tool access, FAISS bindings, templates |
 | `ThemeProvider` | Dark/light theme toggle, OS preference detection |
@@ -142,7 +142,7 @@ GET/POST/PUT/DELETE /api/config/pipelines → PipelineConfig
 
 // Output
 GET /api/output/{session_id}/preview → OutputPreview
-GET /api/output/{session_id}/export?format={pdf|xml|docx} → binary
+GET /api/output/{session_id}/export?format={pdf|docx|md|html|pptx} → binary
 
 // Metrics
 GET /api/metrics/{session_id} → SessionMetrics
@@ -475,7 +475,7 @@ class AgentFactory:
 
 ### 8. Template Registry & Output Generator
 
-**Technology:** Jinja2, WeasyPrint (PDF), python-docx (DOCX), lxml (XML)
+**Technology:** Jinja2, WeasyPrint (PDF), python-docx (DOCX), python-pptx (PPTX)
 
 **Responsibilities:**
 - Store and manage output templates (format, structure, validation rules, metadata, encryption settings)
@@ -618,7 +618,7 @@ class AgentConfig:
 @dataclass
 class OutputConfig:
     template: str                       # template ID from Template Registry
-    formats: list[str]                  # e.g. ["xml", "pdf", "docx"]
+    formats: list[str]                  # e.g. ["md", "pdf", "docx", "pptx"]
 ```
 
 ### LLM Provider Configuration
@@ -719,7 +719,7 @@ class AgentMetrics:
 class Template:
     id: str
     name: str
-    format: str                         # "xml" | "pdf" | "docx" | "md" | "html"
+    format: str                         # "pdf" | "docx" | "md" | "html" | "pptx"
     structure: dict                     # section hierarchy definition
     validation_rules: list[ValidationRule]
     required_metadata: list[str]        # e.g. ["author", "date", "version", "classification"]
@@ -960,7 +960,7 @@ class FileValidationResult:
 
 ### Property 17: Export format matches request
 
-*For any* valid session and requested export format (PDF, XML, DOCX), the Output_Generator should produce a document in the requested format.
+*For any* valid session and requested export format (PDF, DOCX), the Output_Generator should produce a document in the requested format.
 
 **Validates: Requirements 8.3**
 

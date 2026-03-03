@@ -13,6 +13,7 @@ export interface AgentConfig {
   provider_config: {
     provider_type: string;
     model_id: string;
+    inference_profile_id?: string;
     endpoint?: string;
     api_key?: string;
     region?: string;

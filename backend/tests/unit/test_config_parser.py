@@ -86,7 +86,7 @@ def _full_config_dict() -> dict:
         ],
         "output": {
             "template": "report",
-            "formats": ["pdf", "docx", "xml"],
+            "formats": ["pdf", "docx"],
         },
         "execution_timeout": 300,
     }
@@ -304,9 +304,9 @@ class TestSerialize:
 class TestUnsupportedFormat:
     def test_parse_unsupported_format(self):
         with pytest.raises(ValueError, match="Unsupported format"):
-            parse_config("{}", "xml")
+            parse_config("{}", "toml")
 
     def test_serialize_unsupported_format(self):
         config = parse_config(json.dumps(_minimal_config_dict()), "json")
         with pytest.raises(ValueError, match="Unsupported format"):
-            serialize_config(config, "xml")
+            serialize_config(config, "toml")

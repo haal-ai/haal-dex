@@ -351,4 +351,7 @@ class PipelineOrchestrator:
             except UnicodeDecodeError:
                 text = f.content.decode("latin-1")
             parts.append(f"--- {f.original_name} ---\n{text}")
-        return "\n\n".join(parts)
+        combined = "\n\n".join(parts)
+        if not combined.strip():
+            return "No input text was provided."
+        return combined

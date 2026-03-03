@@ -105,16 +105,16 @@ describe('OutputViewer', () => {
     })
   })
 
-  it('shows export buttons for PDF, XML, DOCX', async () => {
+  it('shows export buttons for PDF, DOCX, PPTX', async () => {
     renderOutputViewer()
     await waitFor(() => {
       expect(screen.getByTestId('export-pdf')).toBeInTheDocument()
-      expect(screen.getByTestId('export-xml')).toBeInTheDocument()
       expect(screen.getByTestId('export-docx')).toBeInTheDocument()
+      expect(screen.getByTestId('export-pptx')).toBeInTheDocument()
     })
     expect(screen.getByText('Export PDF')).toBeInTheDocument()
-    expect(screen.getByText('Export XML')).toBeInTheDocument()
     expect(screen.getByText('Export DOCX')).toBeInTheDocument()
+    expect(screen.getByText('Export PPTX')).toBeInTheDocument()
   })
 
   it('shows "no output" message when preview is not available', async () => {
@@ -176,8 +176,8 @@ describe('OutputViewer', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Exporter en PDF')).toBeInTheDocument()
-        expect(screen.getByText('Exporter en XML')).toBeInTheDocument()
         expect(screen.getByText('Exporter en DOCX')).toBeInTheDocument()
+        expect(screen.getByText('Exporter en PPTX')).toBeInTheDocument()
         expect(screen.getByText('Modèle : Report Template')).toBeInTheDocument()
       })
     })

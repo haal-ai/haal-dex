@@ -150,7 +150,7 @@ class GraphFactory:
             return await self._stream_strands(graph, input_data, invocation_state, websocket)
 
         # Fallback streaming
-        return await graph.stream_execute(websocket)
+        return await graph.stream_execute(input_data=input_data, websocket=websocket)
 
     # ------------------------------------------------------------------
     # Strands streaming
@@ -255,10 +255,10 @@ class _FallbackGraph:
     # Streaming execution
     # ------------------------------------------------------------------
 
-    async def stream_execute(self, websocket: Any | None = None) -> PipelineResult:
+    async def stream_execute(self, input_data: str = "", websocket: Any | None = None) -> PipelineResult:
         """Run agents sequentially, yielding events and forwarding to websocket."""
         start = time.monotonic()
-        current_input = ""
+        current_input = input_data
         execution_order: list[str] = []
 
         for step, (node_id, agent) in enumerate(self.agents):

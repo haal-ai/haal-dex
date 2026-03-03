@@ -4,6 +4,10 @@ import { useAuth } from '../hooks/useAuth'
 import { cn } from '../lib/utils'
 import type { PipelineConfig, AgentConfig } from '../types/models'
 
+const DEFAULT_BEDROCK_MODEL_ID = 'anthropic.claude-3-haiku-20240307-v1:0'
+const AVAILABLE_OUTPUT_FORMATS = ['pdf', 'docx', 'md', 'html', 'pptx'] as const
+const AVAILABLE_TOOLS = ['read', 'write', 'python_repl', 'shell'] as const
+
 interface PipelineEntry {
   name: string
   config: PipelineConfig
@@ -20,7 +24,7 @@ function emptyAgent(): AgentConfig {
     model: '',
     provider_config: {
       provider_type: 'bedrock',
-      model_id: '',
+      model_id: DEFAULT_BEDROCK_MODEL_ID,
       temperature: 0.7,
       max_tokens: 2048,
     },
@@ -34,7 +38,7 @@ function emptyConfig(): PipelineConfig {
   return {
     name: '',
     agents: [emptyAgent()],
-    output: { template: '', formats: [] },
+    output: { template: '', formats: ['md'] },
     execution_timeout: 600,
   }
 }
@@ -153,9 +157,16 @@ export function ConfigPanel() {
 
   const handleSave = useCallback(async () => {
     if (!user?.token || !editing) return
-    const result = editingOriginalName
-      ? await updatePipeline(editingOriginalName, editing, user.token)
-      : await createPipeline(editing, user.token)
+    let result: { ok: boolean; error?: ValidationError }
+    try {
+      result = editingOriginalName
+        ? await updatePipeline(editingOriginalName, editing, user.token)
+        : await createPipeline(editing, user.token)
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Save failed'
+      setValidationError(msg)
+      return
+    }
 
     if (!result.ok && result.error) {
       const err = result.error
@@ -264,14 +275,26 @@ interface ConfigFormProps {
   onCancel: () => void
   t: (key: string) => string
 }
-
-const AVAILABLE_TOOLS = ['read', 'write', 'python_repl', 'shell'] as const
 const FAISS_INDEXES = [0, 1, 2, 3] as const
 const PROVIDER_TYPES = ['bedrock', 'openai_compatible', 'github_copilot'] as const
 
 function ConfigForm({ config, onChange, onSave, onCancel, t }: ConfigFormProps) {
   const updateField = <K extends keyof PipelineConfig>(key: K, value: PipelineConfig[K]) => {
     onChange({ ...config, [key]: value })
+  }
+
+  useEffect(() => {
+    if (!config.output.formats || config.output.formats.length === 0) {
+      updateField('output', { ...config.output, formats: ['md'] })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const toggleOutputFormat = (fmt: (typeof AVAILABLE_OUTPUT_FORMATS)[number]) => {
+    const formats = config.output.formats.includes(fmt)
+      ? config.output.formats.filter((f) => f !== fmt)
+      : [...config.output.formats, fmt]
+    updateField('output', { ...config.output, formats })
   }
 
   const updateAgent = (index: number, agent: AgentConfig) => {
@@ -314,6 +337,24 @@ function ConfigForm({ config, onChange, onSave, onCancel, t }: ConfigFormProps) 
           }
           className="w-full border rounded px-3 py-2 dark:bg-gray-800 dark:border-gray-600"
         />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Output formats</label>
+        <div className="flex flex-wrap gap-3">
+          {AVAILABLE_OUTPUT_FORMATS.map((fmt) => (
+            <label key={fmt} className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={config.output.formats.includes(fmt)}
+                disabled={config.output.formats.length === 1 && config.output.formats[0] === fmt}
+                onChange={() => toggleOutputFormat(fmt)}
+                data-testid={`config-output-format-${fmt}`}
+              />
+              {fmt}
+            </label>
+          ))}
+        </div>
       </div>
 
       {/* Agents */}
@@ -422,6 +463,30 @@ function AgentForm({ agent, index, onChange, onRemove, t }: AgentFormProps) {
         className="w-full border rounded px-2 py-1 text-sm dark:bg-gray-800 dark:border-gray-600"
       />
 
+      <div>
+        <label className="block text-xs mb-1">Description (used as prompt)</label>
+        <textarea
+          data-testid={`config-agent-description-${index}`}
+          placeholder="Describe what this agent should do"
+          value={agent.description}
+          onChange={(e) => update('description', e.target.value)}
+          className="w-full border rounded px-2 py-1 text-sm dark:bg-gray-800 dark:border-gray-600"
+          rows={4}
+        />
+      </div>
+
+      <div>
+        <label className="block text-xs mb-1">System prompt (optional override)</label>
+        <textarea
+          data-testid={`config-agent-system-prompt-${index}`}
+          placeholder="Optional: overrides Description when set"
+          value={agent.system_prompt ?? ''}
+          onChange={(e) => update('system_prompt', e.target.value || undefined)}
+          className="w-full border rounded px-2 py-1 text-sm dark:bg-gray-800 dark:border-gray-600"
+          rows={4}
+        />
+      </div>
+
       {/* Model assignment */}
       <div>
         <label className="block text-xs mb-1">{t('config.models')}</label>
@@ -432,6 +497,10 @@ function AgentForm({ agent, index, onChange, onRemove, t }: AgentFormProps) {
             update('provider_config', {
               ...agent.provider_config,
               provider_type: e.target.value,
+              model_id:
+                e.target.value === 'bedrock' && !agent.provider_config.model_id
+                  ? DEFAULT_BEDROCK_MODEL_ID
+                  : agent.provider_config.model_id,
             })
           }
           className="w-full border rounded px-2 py-1 text-sm dark:bg-gray-800 dark:border-gray-600"
@@ -455,6 +524,22 @@ function AgentForm({ agent, index, onChange, onRemove, t }: AgentFormProps) {
           }
           className="w-full border rounded px-2 py-1 text-sm mt-1 dark:bg-gray-800 dark:border-gray-600"
         />
+
+        {agent.provider_config.provider_type === 'bedrock' && (
+          <input
+            data-testid={`config-agent-inference-profile-${index}`}
+            type="text"
+            placeholder="Inference profile ARN/ID (required for some Bedrock models)"
+            value={agent.provider_config.inference_profile_id ?? ''}
+            onChange={(e) =>
+              update('provider_config', {
+                ...agent.provider_config,
+                inference_profile_id: e.target.value || undefined,
+              })
+            }
+            className="w-full border rounded px-2 py-1 text-sm mt-1 dark:bg-gray-800 dark:border-gray-600"
+          />
+        )}
       </div>
 
       {/* Tools */}

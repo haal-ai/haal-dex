@@ -32,7 +32,11 @@ function formatFileSize(bytes: number): string {
 
 const SUPPORTED_FORMATS = new Set(['pptx', 'docx', 'pdf', 'txt', 'html', 'md'])
 
-export function DropZone() {
+export interface DropZoneProps {
+  onSessionCreated?: (sessionId: string) => void
+}
+
+export function DropZone({ onSessionCreated }: DropZoneProps) {
   const { t } = useLanguage()
   const { user } = useAuth()
   const [files, setFiles] = useState<DroppedFile[]>([])
@@ -99,7 +103,8 @@ export function DropZone() {
         throw new Error(reason)
       }
 
-      await res.json() as FileUploadResponse
+      const data = await res.json() as FileUploadResponse
+      onSessionCreated?.(data.session_id)
       setFiles([])
       setErrors([])
     } catch (err) {
@@ -108,7 +113,7 @@ export function DropZone() {
     } finally {
       setUploading(false)
     }
-  }, [files, user, t])
+  }, [files, user, t, onSessionCreated])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,

@@ -57,13 +57,13 @@ class TestRegisterTemplate:
 
     def test_register_multiple_templates(self) -> None:
         registry = TemplateRegistry()
-        tpl_a = _make_template(template_id="a", fmt="xml")
+        tpl_a = _make_template(template_id="a", fmt="md")
         tpl_b = _make_template(template_id="b", fmt="html")
 
         registry.register_template(tpl_a)
         registry.register_template(tpl_b)
 
-        assert registry.get_template("a").format == "xml"
+        assert registry.get_template("a").format == "md"
         assert registry.get_template("b").format == "html"
 
 
@@ -170,9 +170,9 @@ class TestTemplateFieldsPreserved:
     def test_supported_formats(self) -> None:
         """Templates can be registered for each supported output format."""
         registry = TemplateRegistry()
-        for fmt in ("xml", "pdf", "docx", "md", "html"):
+        for fmt in ("pdf", "docx", "md", "html"):
             tpl = _make_template(template_id=f"tpl-{fmt}", fmt=fmt)
             registry.register_template(tpl)
 
-        for fmt in ("xml", "pdf", "docx", "md", "html"):
+        for fmt in ("pdf", "docx", "md", "html"):
             assert registry.get_template(f"tpl-{fmt}").format == fmt

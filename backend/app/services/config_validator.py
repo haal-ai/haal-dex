@@ -13,7 +13,7 @@ from app.models.pipeline import PipelineConfig
 
 VALID_PROVIDER_TYPES = {"bedrock", "openai_compatible", "github_copilot"}
 VALID_TOOL_NAMES = {"read", "write", "python_repl", "shell", "query_faiss"}
-VALID_OUTPUT_FORMATS = {"xml", "pdf", "docx", "md", "html"}
+VALID_OUTPUT_FORMATS = {"pdf", "docx", "md", "html", "pptx"}
 FAISS_INDEX_RANGE = range(0, 4)  # 0-3 inclusive
 
 
@@ -27,6 +27,12 @@ def validate_config(config: PipelineConfig) -> list[str]:
     # --- Pipeline-level checks ---
     if not config.agents:
         errors.append("Pipeline must have at least one agent")
+
+    # --- Output compatibility checks ---
+    if "pptx" in (config.output.formats or []) and config.output.template != "demo-slide-outline":
+        errors.append(
+            "output: pptx export requires template 'demo-slide-outline' (slide-outline intermediate format)."
+        )
 
     # --- Agent-level checks ---
     seen_names: set[str] = set()
@@ -56,10 +62,32 @@ def validate_config(config: PipelineConfig) -> list[str]:
                 f"{prefix}: provider_type 'github_copilot' requires oauth_config"
             )
 
-        if ptype == "bedrock" and not agent.provider_config.region:
-            errors.append(
-                f"{prefix}: provider_type 'bedrock' requires region"
+        if ptype == "bedrock":
+            model_id = agent.provider_config.model_id or ""
+            inference_profile_id = agent.provider_config.inference_profile_id
+
+            # Bedrock may mark unversioned Claude 3 IDs as "Legacy" and deny access.
+            legacy_to_active = {
+                "anthropic.claude-3-sonnet": "anthropic.claude-3-sonnet-20240229-v1:0",
+                "anthropic.claude-3-opus": "anthropic.claude-3-opus-20240229-v1:0",
+                "anthropic.claude-3-haiku": "anthropic.claude-3-haiku-20240307-v1:0",
+            }
+            if model_id in legacy_to_active:
+                errors.append(
+                    f"{prefix}: bedrock model_id '{model_id}' is legacy/unsupported in some accounts. "
+                    f"Use '{legacy_to_active[model_id]}' (or another active Bedrock model ID)."
+                )
+
+            inference_profile_required_prefixes = (
+                "anthropic.claude-sonnet-4",
+                "anthropic.claude-opus-4",
+                "anthropic.claude-3-7-sonnet",
             )
+            if model_id.startswith(inference_profile_required_prefixes) and not inference_profile_id:
+                errors.append(
+                    f"{prefix}: bedrock model_id '{model_id}' requires inference_profile_id (Bedrock inference profile ARN/ID). "
+                    "This model may not support on-demand throughput in your account; create/select an inference profile in Bedrock and paste its ARN/ID."
+                )
 
         # Tool names
         for tool_name in agent.tools:

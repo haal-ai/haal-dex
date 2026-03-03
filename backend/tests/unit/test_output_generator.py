@@ -343,23 +343,6 @@ class TestExport:
         assert exported == b"PK-fake-docx"
 
     @pytest.mark.asyncio
-    async def test_export_xml_calls_lxml(self, tmp_path):
-        """XML export delegates to lxml."""
-        registry = TemplateRegistry()
-        tpl = _make_template(str(tmp_path), fmt="html")
-        registry.register_template(tpl)
-
-        gen = _build_generator(registry)
-        doc = await gen.render("tpl-1", {"name": "World"}, _make_metadata())
-
-        with patch("app.services.output_generator.OutputGenerator._export_xml") as mock_xml:
-            mock_xml.return_value = b"<?xml version='1.0'?><document><content>test</content></document>"
-            exported = await gen.export(doc, "xml")
-
-        assert isinstance(exported, bytes)
-        assert b"<document>" in exported
-
-    @pytest.mark.asyncio
     async def test_export_unsupported_format_raises(self, tmp_path):
         """Requesting an unsupported format should raise ValueError."""
         registry = TemplateRegistry()

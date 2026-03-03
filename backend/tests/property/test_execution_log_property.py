@@ -56,7 +56,7 @@ _model_ids = st.sampled_from([
 ])
 _statuses = st.sampled_from(["pending", "running", "completed", "failed"])
 _formats = st.sampled_from(["txt", "pdf", "docx", "html", "md", "pptx"])
-_output_formats = st.sampled_from(["pdf", "xml", "docx", "md", "html"])
+_output_formats = st.sampled_from(["pdf", "docx", "md", "html", "pptx"])
 
 _short_text = st.text(min_size=0, max_size=100)
 _text_list = st.lists(_short_text, min_size=0, max_size=5)

@@ -25,7 +25,7 @@ from app.services.config_validator import validate_config
 def _bedrock_provider(**overrides) -> ProviderConfig:
     defaults = dict(
         provider_type="bedrock",
-        model_id="anthropic.claude-3-sonnet",
+        model_id="anthropic.claude-3-sonnet-20240229-v1:0",
         region="us-east-1",
     )
     defaults.update(overrides)
@@ -47,7 +47,7 @@ def _valid_config(**overrides) -> PipelineConfig:
     defaults = dict(
         name="test-pipeline",
         agents=[_agent()],
-        output=OutputConfig(template="default", formats=["xml"]),
+        output=OutputConfig(template="default", formats=["pdf"]),
     )
     defaults.update(overrides)
     return PipelineConfig(**defaults)
@@ -73,7 +73,7 @@ class TestValidConfig:
 
     def test_all_valid_output_formats(self):
         cfg = _valid_config(
-            output=OutputConfig(template="t", formats=["xml", "pdf", "docx", "md", "html"])
+            output=OutputConfig(template="t", formats=["pdf", "docx", "md", "html", "pptx"])
         )
         assert validate_config(cfg) == []
 
@@ -148,7 +148,7 @@ class TestProviderRequirements:
     def test_bedrock_requires_region(self):
         provider = ProviderConfig(
             provider_type="bedrock",
-            model_id="anthropic.claude-3-sonnet",
+            model_id="anthropic.claude-3-sonnet-20240229-v1:0",
             region=None,
         )
         agent = _agent(provider_config=provider)

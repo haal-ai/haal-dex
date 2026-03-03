@@ -1,13 +1,15 @@
 """Output generator for rendering, validating, and exporting documents.
 
 Uses Jinja2 for template rendering, and delegates to WeasyPrint (PDF),
-python-docx (DOCX), and lxml (XML) for export.  Encryption is delegated
+python-docx (DOCX) for export.  Encryption is delegated
 to :class:`EncryptionService` when the template has encryption settings.
 """
 
 from __future__ import annotations
 
+import os
 import re
+import sys
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -104,21 +106,31 @@ class OutputGenerator:
     async def export(self, document: RenderedDocument, fmt: str) -> bytes:
         """Export *document* to the requested *fmt*.
 
-        Supported formats: ``"pdf"``, ``"docx"``, ``"xml"``, ``"md"``,
-        ``"html"``.
+        Supported formats: ``"pdf"``, ``"docx"``, ``"md"``,
+        ``"html"``, ``"pptx"``.
         """
         text = document.content.decode("utf-8", errors="replace")
+
+        if document.format == "md":
+            if fmt == "pdf":
+                html_text = self._markdown_to_html(text)
+                return self._export_pdf(html_text)
+            elif fmt == "html":
+                html_text = self._markdown_to_html(text)
+                return html_text.encode("utf-8")
+            elif fmt == "docx":
+                return self._export_docx_from_markdown(text, document.metadata)
 
         if fmt == "pdf":
             return self._export_pdf(text)
         elif fmt == "docx":
             return self._export_docx(text, document.metadata)
-        elif fmt == "xml":
-            return self._export_xml(text)
         elif fmt in ("md", "markdown"):
             return text.encode("utf-8")
         elif fmt == "html":
             return text.encode("utf-8")
+        elif fmt == "pptx":
+            return self._export_pptx(text)
         else:
             raise ValueError(f"Unsupported export format: {fmt!r}")
 
@@ -155,6 +167,22 @@ class OutputGenerator:
         }
 
         return jinja_tpl.render(context)
+
+    @staticmethod
+    def _markdown_to_html(markdown_text: str) -> str:
+        try:
+            import markdown as md  # type: ignore[import-untyped]
+        except Exception as exc:
+            raise RuntimeError(
+                "Markdown rendering requires the 'Markdown' Python package. "
+                "Install backend dependencies and restart the backend."
+            ) from exc
+
+        return md.markdown(
+            markdown_text,
+            extensions=["extra"],
+            output_format="html5",
+        )
 
     # ------------------------------------------------------------------
     # Internal – validation
@@ -210,9 +238,36 @@ class OutputGenerator:
     @staticmethod
     def _export_pdf(html_text: str) -> bytes:
         """Convert HTML text to PDF via WeasyPrint."""
-        from weasyprint import HTML  # type: ignore[import-untyped]
+        if sys.platform.startswith("win"):
+            dll_dirs_env = os.getenv("INTENT_WEASYPRINT_DLL_DIRS")
+            dll_dirs = (
+                [p for p in dll_dirs_env.split(";") if p.strip()]
+                if dll_dirs_env
+                else [r"C:\\msys64\\mingw64\\bin", r"C:\\msys64\\usr\\bin"]
+            )
+            for p in dll_dirs:
+                try:
+                    if Path(p).exists():
+                        os.add_dll_directory(p)
+                except Exception:
+                    pass
 
-        return HTML(string=html_text).write_pdf()
+        try:
+            from weasyprint import HTML  # type: ignore[import-untyped]
+        except Exception as exc:
+            raise RuntimeError(
+                "PDF export requires WeasyPrint and its native dependencies. "
+                "On Windows, install a GTK/Pango/Cairo runtime (e.g., MSYS2 mingw-w64 or a GTK3 runtime), "
+                "then restart the backend. See: https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#installation"
+            ) from exc
+
+        try:
+            return HTML(string=html_text).write_pdf()
+        except Exception as exc:
+            raise RuntimeError(
+                "WeasyPrint failed to generate the PDF. This is usually caused by missing native libraries "
+                "(Cairo/Pango/GDK-PixBuf) on Windows. See: https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#troubleshooting"
+            ) from exc
 
     @staticmethod
     def _export_docx(text: str, metadata: DocumentMetadata) -> bytes:
@@ -234,11 +289,70 @@ class OutputGenerator:
         return buf.getvalue()
 
     @staticmethod
-    def _export_xml(text: str) -> bytes:
-        """Wrap text in an XML document element via lxml."""
-        from lxml import etree  # type: ignore[import-untyped]
+    def _export_docx_from_markdown(markdown_text: str, metadata: DocumentMetadata) -> bytes:
+        from io import BytesIO
 
-        root = etree.Element("document")
-        content_el = etree.SubElement(root, "content")
-        content_el.text = text
-        return etree.tostring(root, pretty_print=True, xml_declaration=True, encoding="UTF-8")
+        from docx import Document  # type: ignore[import-untyped]
+
+        doc = Document()
+        doc.core_properties.author = metadata.author
+        doc.core_properties.title = f"v{metadata.version}"
+        doc.core_properties.comments = metadata.classification
+
+        for raw_line in markdown_text.splitlines():
+            line = raw_line.rstrip("\r\n")
+            stripped = line.strip()
+            if not stripped:
+                doc.add_paragraph("")
+                continue
+
+            if stripped.startswith("### "):
+                doc.add_heading(stripped[4:].strip(), level=3)
+            elif stripped.startswith("## "):
+                doc.add_heading(stripped[3:].strip(), level=2)
+            elif stripped.startswith("# "):
+                doc.add_heading(stripped[2:].strip(), level=1)
+            elif stripped.startswith("- ") or stripped.startswith("* "):
+                doc.add_paragraph(stripped[2:].strip(), style="List Bullet")
+            else:
+                doc.add_paragraph(stripped)
+
+        buf = BytesIO()
+        doc.save(buf)
+        return buf.getvalue()
+
+    @staticmethod
+    def _export_pptx(text: str) -> bytes:
+        """Convert a simple markdown-like slide outline to PPTX.
+
+        Slides are separated by lines containing only '---'.
+        The first non-empty line of each slide becomes the title.
+        Remaining lines become the body (joined with newlines).
+        """
+        from io import BytesIO
+
+        from pptx import Presentation  # type: ignore[import-untyped]
+
+        prs = Presentation()
+        # Title and content layout is usually index 1
+        layout = prs.slide_layouts[1]
+
+        chunks = [c.strip() for c in re.split(r"\r?\n---\r?\n", text)]
+        for chunk in [c for c in chunks if c.strip()]:
+            lines = [ln.strip() for ln in chunk.splitlines() if ln.strip()]
+            if not lines:
+                continue
+            title = lines[0].lstrip("# ")
+            body = "\n".join(lines[1:]) if len(lines) > 1 else ""
+
+            slide = prs.slides.add_slide(layout)
+            if slide.shapes.title is not None:
+                slide.shapes.title.text = title
+            if len(slide.placeholders) > 1:
+                tf = slide.placeholders[1].text_frame
+                tf.clear()
+                tf.text = body
+
+        buf = BytesIO()
+        prs.save(buf)
+        return buf.getvalue()

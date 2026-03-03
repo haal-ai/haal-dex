@@ -17,7 +17,7 @@ rules, report exactly which rules were violated.
 **Validates: Requirements 7.4**
 
 Property 17: Export format matches request — For any valid session and format
-(PDF/XML/DOCX), export produces document in requested format.
+(PDF/DOCX), export produces document in requested format.
 **Validates: Requirements 8.3**
 """
 
@@ -45,7 +45,7 @@ from app.services.template_registry import TemplateRegistry
 # Strategies
 # ---------------------------------------------------------------------------
 
-_formats = st.sampled_from(["xml", "pdf", "docx", "md", "html"])
+_formats = st.sampled_from(["pdf", "docx", "md", "html"])
 
 _non_empty_text = st.text(
     alphabet=st.characters(whitelist_categories=("L", "N", "P", "Z")),
@@ -298,19 +298,19 @@ def test_validation_failure_reports_violated_rules(
 
 
 @given(
-    fmt=st.sampled_from(["pdf", "xml", "docx"]),
+    fmt=st.sampled_from(["pdf", "docx"]),
     metadata=_metadata_strategy,
 )
 @settings(max_examples=100, deadline=None)
 def test_export_format_matches_request(fmt: str, metadata: DocumentMetadata):
-    """Property 17: For any valid session and format (PDF/XML/DOCX), export
+    """Property 17: For any valid session and format (PDF/DOCX), export
     produces document in requested format.
 
     **Validates: Requirements 8.3**
 
-    Strategy: Mock the internal export methods (_export_pdf, _export_docx,
-    _export_xml) to return known bytes, then verify export returns non-empty
-    bytes for each format.
+    Strategy: Mock the internal export methods (_export_pdf, _export_docx)
+    to return known bytes, then verify export returns non-empty bytes for each
+    format.
     """
     with tempfile.TemporaryDirectory() as tmpdir:
         tpl_path = Path(tmpdir) / "export_tpl.html"
@@ -344,7 +344,6 @@ def test_export_format_matches_request(fmt: str, metadata: DocumentMetadata):
         # Mock the export methods to return known bytes
         mock_pdf_bytes = b"%PDF-1.4 mock pdf content"
         mock_docx_bytes = b"PK\x03\x04 mock docx content"
-        mock_xml_bytes = b"<?xml version='1.0'?><document>mock</document>"
 
         with (
             patch.object(
@@ -352,9 +351,6 @@ def test_export_format_matches_request(fmt: str, metadata: DocumentMetadata):
             ),
             patch.object(
                 OutputGenerator, "_export_docx", return_value=mock_docx_bytes
-            ),
-            patch.object(
-                OutputGenerator, "_export_xml", return_value=mock_xml_bytes
             ),
         ):
             result = asyncio.run(generator.export(doc, fmt))
@@ -371,5 +367,3 @@ def test_export_format_matches_request(fmt: str, metadata: DocumentMetadata):
             assert result == mock_pdf_bytes
         elif fmt == "docx":
             assert result == mock_docx_bytes
-        elif fmt == "xml":
-            assert result == mock_xml_bytes

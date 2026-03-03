@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { ThemeProvider, useTheme } from './providers/ThemeProvider'
 import { I18nProvider, useLanguage } from './providers/I18nProvider'
 import { AuthProvider, useAuth } from './hooks/useAuth'
@@ -33,6 +33,64 @@ function AppContent() {
   const { logout, isAdmin } = useAuth()
   const [activeTab, setActiveTab] = useState<Tab>('upload')
   const [sessionId, setSessionId] = useState<string>('')
+  const sidebarWidthStorageKey = 'intent-chat-sidebar-width'
+  const minSidebarWidth = 260
+  const maxSidebarWidth = 700
+  const [sidebarWidth, setSidebarWidth] = useState<number>(() => {
+    const raw = localStorage.getItem(sidebarWidthStorageKey)
+    const parsed = raw ? Number(raw) : NaN
+    if (Number.isFinite(parsed) && parsed >= minSidebarWidth && parsed <= maxSidebarWidth) {
+      return parsed
+    }
+    return 320
+  })
+  const resizingRef = useRef(false)
+  const resizeStartXRef = useRef(0)
+  const resizeStartWidthRef = useRef(0)
+
+  const clampSidebarWidth = useCallback(
+    (value: number) => Math.min(maxSidebarWidth, Math.max(minSidebarWidth, value)),
+    [maxSidebarWidth, minSidebarWidth]
+  )
+
+  useEffect(() => {
+    localStorage.setItem(sidebarWidthStorageKey, String(sidebarWidth))
+  }, [sidebarWidth, sidebarWidthStorageKey])
+
+  useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => {
+      if (!resizingRef.current) return
+      const dx = e.clientX - resizeStartXRef.current
+      setSidebarWidth(clampSidebarWidth(resizeStartWidthRef.current + dx))
+    }
+
+    const onMouseUp = () => {
+      resizingRef.current = false
+    }
+
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mouseup', onMouseUp)
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+    }
+  }, [clampSidebarWidth])
+
+  const onResizeMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      resizingRef.current = true
+      resizeStartXRef.current = e.clientX
+      resizeStartWidthRef.current = sidebarWidth
+      e.preventDefault()
+    },
+    [sidebarWidth]
+  )
+
+  useEffect(() => {
+    if (!sessionId) {
+      setSessionId(generateSessionId())
+    }
+  }, [sessionId])
 
   const ensureSession = useCallback(() => {
     if (!sessionId) {
@@ -94,10 +152,20 @@ function AppContent() {
         {/* Sidebar — Chat */}
         <aside
           data-testid="sidebar"
-          className="w-80 border-r border-border flex flex-col bg-sidebar text-sidebar-foreground"
+          className="border-r border-border flex flex-col bg-sidebar text-sidebar-foreground flex-shrink-0"
+          style={{ width: sidebarWidth }}
         >
-          <ChatPanel sessionId={sessionId || 'pending'} />
+          <ChatPanel sessionId={sessionId} />
         </aside>
+
+        <div
+          data-testid="sidebar-resizer"
+          className="w-1 cursor-col-resize bg-border hover:bg-muted"
+          onMouseDown={onResizeMouseDown}
+          role="separator"
+          aria-orientation="vertical"
+          tabIndex={0}
+        />
 
         {/* Main area */}
         <main className="flex-1 flex flex-col overflow-hidden">
@@ -123,7 +191,14 @@ function AppContent() {
 
           {/* Tab content */}
           <div data-testid="tab-content" className="flex-1 overflow-auto p-4">
-            {activeTab === 'upload' && <DropZone />}
+            {activeTab === 'upload' && (
+              <DropZone
+                onSessionCreated={(newSessionId) => {
+                  setSessionId(newSessionId)
+                  setActiveTab('pipeline')
+                }}
+              />
+            )}
             {activeTab === 'pipeline' && (
               <ExecutionTimeline sessionId={ensureSession()} />
             )}

@@ -42,6 +42,10 @@ def _make_tool_context(faiss_manager=None):
     return SimpleNamespace(invocation_state=state)
 
 
+def _make_tool_context_with_state(state: dict):
+    return SimpleNamespace(invocation_state=state)
+
+
 # ---------------------------------------------------------------------------
 # ALL_TOOLS registry
 # ---------------------------------------------------------------------------
@@ -80,6 +84,30 @@ class TestReadFile:
         with pytest.raises(FileNotFoundError):
             _call(read_file, path=str(tmp_path / "nope.txt"))
 
+    def test_denies_read_when_outside_allowed_roots(self, tmp_path):
+        allowed = tmp_path / "allowed"
+        denied = tmp_path / "denied"
+        allowed.mkdir()
+        denied.mkdir()
+        p = denied / "secret.txt"
+        p.write_text("no", encoding="utf-8")
+
+        ctx = _make_tool_context_with_state({"allowed_read_roots": [str(allowed)]})
+        fn = getattr(read_file, "__wrapped__", read_file)
+        result = fn(path=str(p), tool_context=ctx)
+        assert "access denied" in result
+
+    def test_allows_read_when_within_allowed_roots(self, tmp_path):
+        allowed = tmp_path / "allowed"
+        allowed.mkdir()
+        p = allowed / "ok.txt"
+        p.write_text("yes", encoding="utf-8")
+
+        ctx = _make_tool_context_with_state({"allowed_read_roots": [str(allowed)]})
+        fn = getattr(read_file, "__wrapped__", read_file)
+        result = fn(path=str(p), tool_context=ctx)
+        assert result == "yes"
+
 
 # ---------------------------------------------------------------------------
 # write_file  (Requirement 6.2)
@@ -102,6 +130,30 @@ class TestWriteFile:
         p.write_text("old", encoding="utf-8")
         _call(write_file, path=str(p), content="new")
         assert p.read_text(encoding="utf-8") == "new"
+
+    def test_denies_write_when_outside_allowed_roots(self, tmp_path):
+        allowed = tmp_path / "allowed"
+        denied = tmp_path / "denied"
+        allowed.mkdir()
+        denied.mkdir()
+        p = denied / "blocked.txt"
+
+        ctx = _make_tool_context_with_state({"allowed_write_roots": [str(allowed)]})
+        fn = getattr(write_file, "__wrapped__", write_file)
+        result = fn(path=str(p), content="x", tool_context=ctx)
+        assert "access denied" in result
+        assert not p.exists()
+
+    def test_allows_write_when_within_allowed_roots(self, tmp_path):
+        allowed = tmp_path / "allowed"
+        allowed.mkdir()
+        p = allowed / "ok.txt"
+
+        ctx = _make_tool_context_with_state({"allowed_write_roots": [str(allowed)]})
+        fn = getattr(write_file, "__wrapped__", write_file)
+        result = fn(path=str(p), content="x", tool_context=ctx)
+        assert "Written" in result
+        assert p.read_text(encoding="utf-8") == "x"
 
 
 # ---------------------------------------------------------------------------

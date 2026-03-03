@@ -38,7 +38,7 @@ const MOCK_PIPELINES = [
     config: {
       name: 'pipeline-b',
       agents: [],
-      output: { template: 'tpl-2', formats: ['xml'] },
+      output: { template: 'tpl-2', formats: ['pdf'] },
       execution_timeout: 300,
     },
   },

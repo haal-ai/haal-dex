@@ -236,7 +236,7 @@ class TestFallbackStreamExecute:
         a1 = _make_callable_agent("a1")
         ws = AsyncMock()
         graph = _FallbackGraph(agents=[("a1", a1)])
-        result = await graph.stream_execute(websocket=ws)
+        result = await graph.stream_execute(input_data="hello", websocket=ws)
 
         assert result.status == "COMPLETED"
         calls = ws.send_json.call_args_list
@@ -249,7 +249,7 @@ class TestFallbackStreamExecute:
         a2 = _make_callable_agent("a2")
         ws = AsyncMock()
         graph = _FallbackGraph(agents=[("a1", a1), ("a2", a2)])
-        result = await graph.stream_execute(websocket=ws)
+        result = await graph.stream_execute(input_data="start", websocket=ws)
 
         assert result.status == "COMPLETED"
         calls = ws.send_json.call_args_list

@@ -37,8 +37,8 @@
     "preview": "Aperçu",
     "export": "Exporter",
     "exportPdf": "Exporter en PDF",
-    "exportXml": "Exporter en XML",
     "exportDocx": "Exporter en DOCX",
+    "exportPptx": "Exporter en PPTX",
     "noOutput": "Aucun résultat disponible",
     "template": "Modèle : {{name}}"
   },

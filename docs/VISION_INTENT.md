@@ -32,7 +32,7 @@ INTENT centralizes and automates this process through a configurable agentic pip
 │                                                                     │
 │  ┌──────────────┐  ┌──────────────┐  ┌───────────────────────────┐ │
 │  │  File Input   │  │  Chat (NL)   │  │  Output Viewer            │ │
-│  │  (1..N files) │  │  (EN / FR)   │  │  (Templates, PDF, XML)   │ │
+│  │  (1..N files) │  │  (EN / FR)   │  │  (Templates, PDF, DOCX)  │ │
 │  │  Drag & Drop  │  │              │  │                           │ │
 │  └──────┬───────┘  └──────┬───────┘  └───────────▲───────────────┘ │
 │         │                 │                       │                  │
@@ -85,7 +85,7 @@ INTENT centralizes and automates this process through a configurable agentic pip
 ┌─────────────────────────────────────────────────────────────────────┐
 │              OUTPUT GENERATION                                       │
 │                                                                     │
-│  Template Registry ──► Rendered Output (XML, PDF, DOCX, MD, ...)   │
+│  Template Registry ──► Rendered Output (MD/HTML, PDF, DOCX, PPTX)  │
 │  (configurable list)                                                │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -100,7 +100,7 @@ INTENT centralizes and automates this process through a configurable agentic pip
 |---------|-------------|
 | Drag & Drop file input | User drops 1 to N input files. Supported formats: **PPTX, DOCX, PDF, TXT, HTML, Markdown**. Files may be encrypted — the system supports configurable decryption on ingestion. Visual drop zone with file preview and format detection. |
 | Natural language chat | Bilingual conversational interface (EN / FR) to formulate requests, ask questions, steer the pipeline. |
-| Output viewer | Preview generated documents against templates. Export to PDF, XML, DOCX. |
+| Output viewer | Preview generated documents against templates. Export to PDF, DOCX, PPTX, Markdown, HTML. |
 | Execution monitor | Real-time timeline of the agentic pipeline. Live logs and agent status. |
 | Configuration panel | Admin UI to configure LLM providers, agents, templates, FAISS indexes. |
 | Modern design | Responsive, dark/light theme, component library (shadcn/ui or equivalent), native drag & drop. |
@@ -126,7 +126,7 @@ INTENT centralizes and automates this process through a configurable agentic pip
 
 Templates are defined in a configurable registry. Each template specifies:
 
-- Output format (XML, PDF, DOCX, Markdown, HTML)
+- Output format (PDF, DOCX, Markdown, HTML, PPTX)
 - Expected document structure (sections, fields, hierarchy)
 - Validation rules (required fields, format constraints, cross-references)
 - Required metadata (author, date, version, classification)
@@ -199,7 +199,7 @@ pipeline:
 
   output:
     template: "structured_doc_v1"
-    formats: ["xml", "pdf"]
+    formats: ["md", "pdf", "docx"]
 ```
 
 ---
@@ -218,7 +218,7 @@ pipeline:
    c. Agents use their tools (read, write, repl, shell) as needed
    d. Every step is logged
 5. Output document is generated from the selected template
-6. User previews, validates, and exports (XML, PDF, DOCX)
+6. User previews, validates, and exports (PDF, DOCX, PPTX, Markdown, HTML)
 7. Execution is archived for replay and audit
 ```
 

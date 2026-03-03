@@ -40,7 +40,7 @@ _identifier = st.from_regex(r"[a-zA-Z][a-zA-Z0-9_-]{0,19}", fullmatch=True)
 def _valid_provider(**overrides) -> ProviderConfig:
     defaults = dict(
         provider_type="bedrock",
-        model_id="anthropic.claude-3-sonnet",
+        model_id="anthropic.claude-3-sonnet-20240229-v1:0",
         region="us-east-1",
     )
     defaults.update(overrides)
@@ -62,7 +62,7 @@ def _valid_config(**overrides) -> PipelineConfig:
     defaults = dict(
         name="test-pipeline",
         agents=[_valid_agent()],
-        output=OutputConfig(template="default", formats=["xml"]),
+        output=OutputConfig(template="default", formats=["pdf"]),
     )
     defaults.update(overrides)
     return PipelineConfig(**defaults)
@@ -104,7 +104,7 @@ def config_with_out_of_range_faiss(draw) -> PipelineConfig:
 def config_with_invalid_output_format(draw) -> PipelineConfig:
     """Generate a config with an invalid output format."""
     bad_fmt = draw(st.text(min_size=1, max_size=10).filter(
-        lambda s: s not in ("xml", "pdf", "docx", "md", "html")
+        lambda s: s not in ("pdf", "docx", "md", "html", "pptx")
     ))
     return _valid_config(output=OutputConfig(template="t", formats=[bad_fmt]))
 
@@ -133,7 +133,7 @@ def config_with_bedrock_missing_region() -> st.SearchStrategy[PipelineConfig]:
     """Generate a config with bedrock provider but no region."""
     provider = ProviderConfig(
         provider_type="bedrock",
-        model_id="anthropic.claude-3-sonnet",
+        model_id="anthropic.claude-3-sonnet-20240229-v1:0",
         region=None,
     )
     agent = _valid_agent(provider_config=provider)

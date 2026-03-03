@@ -8,13 +8,13 @@ export interface OutputViewerProps {
   sessionId: string
 }
 
-const EXPORT_FORMATS = ['pdf', 'xml', 'docx'] as const
+const EXPORT_FORMATS = ['pdf', 'docx', 'pptx'] as const
 type ExportFormat = (typeof EXPORT_FORMATS)[number]
 
 const FORMAT_LABEL_KEYS: Record<ExportFormat, string> = {
   pdf: 'output.exportPdf',
-  xml: 'output.exportXml',
   docx: 'output.exportDocx',
+  pptx: 'output.exportPptx',
 }
 
 async function fetchPreview(sessionId: string, token: string): Promise<OutputPreview | null> {

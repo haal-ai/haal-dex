@@ -28,10 +28,12 @@ from app.models.files import IngestedFile
 from app.models.pipeline import PipelineConfig
 from app.models.session import Session
 from app.pipeline_orchestrator import PipelineOrchestrator
+from app.services.config_validator import validate_config
 from app.services.encryption_service import EncryptionService
 from app.services.execution_logger import ExecutionLogger
 from app.services.metrics_collector import MetricsCollector
 from app.services.output_generator import OutputGenerator
+from app.services.template_defaults import get_default_template_registry
 from app.services.template_registry import TemplateRegistry
 
 router = APIRouter(tags=["pipeline"])
@@ -59,6 +61,34 @@ def store_session_files(session_id: str, files: list[IngestedFile]) -> None:
     _session_files[session_id] = files
 
 
+@router.post("/api/pipeline/sessions/{session_id}/config")
+async def set_session_pipeline_config(
+    session_id: str,
+    config: PipelineConfig,
+    _user: UserContext = Depends(get_current_user),
+) -> dict:
+    """Attach a pipeline configuration to an existing session.
+
+    File upload creates a session ID. The execution WebSocket expects a
+    PipelineConfig to have been associated with that session before it can
+    stream execution.
+    """
+    session = _sessions.get(session_id)
+    if session is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Session not found",
+        )
+
+    errors = validate_config(config)
+    if errors:
+        raise HTTPException(status_code=422, detail={"validation_errors": errors})
+
+    store_session_config(session_id, config)
+    session.pipeline_config_id = config.name
+    return {"ok": True, "session_id": session_id}
+
+
 # ---------------------------------------------------------------------------
 # Dependency helpers
 # ---------------------------------------------------------------------------
@@ -81,7 +111,7 @@ def _get_orchestrator() -> PipelineOrchestrator:
     encryption_service = EncryptionService()
     execution_logger = ExecutionLogger(encryption_service=encryption_service)
     metrics_collector = MetricsCollector()
-    template_registry = TemplateRegistry()
+    template_registry = get_default_template_registry()
     output_generator = OutputGenerator(
         registry=template_registry,
         encryption_service=encryption_service,
@@ -114,6 +144,10 @@ async def execute_pipeline(
     runs the full pipeline flow via PipelineOrchestrator (logging, metrics,
     encryption, output generation), and returns the outcome.
     """
+    errors = validate_config(config)
+    if errors:
+        raise HTTPException(status_code=422, detail={"validation_errors": errors})
+
     session = orchestrator.create_session(user.user_id, config)
     _sessions[session.id] = session
 

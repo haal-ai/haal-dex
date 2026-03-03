@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
+import json
+import os
 from dataclasses import asdict
+from pathlib import Path
+from threading import Lock
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -10,7 +14,7 @@ from pydantic import BaseModel
 
 from app.middleware.auth import require_admin
 from app.models.auth import UserContext
-from app.models.pipeline import PipelineConfig
+from app.models.pipeline import AgentConfig, OAuthConfig, OutputConfig, PipelineConfig, ProviderConfig
 from app.services.config_parser import ConfigParseError, parse_config, serialize_config
 from app.services.config_validator import validate_config
 
@@ -20,7 +24,81 @@ router = APIRouter(prefix="/api/config", tags=["config"])
 # In-memory store (keyed by pipeline config name)
 # ---------------------------------------------------------------------------
 
-_pipeline_store: dict[str, PipelineConfig] = {}
+_store_lock = Lock()
+_default_store_path = Path(__file__).resolve().parents[3] / "pipeline_store.json"
+_store_path = Path(os.getenv("INTENT_PIPELINE_STORE_PATH", str(_default_store_path)))
+
+
+def _dict_to_config(data: dict[str, Any]) -> PipelineConfig:
+    output = data.get("output") or {}
+    output_cfg = OutputConfig(
+        template=str(output.get("template") or ""),
+        formats=list(output.get("formats") or []),
+    )
+
+    agents: list[AgentConfig] = []
+    for a in list(data.get("agents") or []):
+        provider = a.get("provider_config") or {}
+        oauth_raw = provider.get("oauth_config")
+        oauth_cfg = OAuthConfig(**oauth_raw) if isinstance(oauth_raw, dict) else None
+        provider_cfg = ProviderConfig(
+            provider_type=str(provider.get("provider_type") or ""),
+            model_id=str(provider.get("model_id") or ""),
+            inference_profile_id=provider.get("inference_profile_id"),
+            endpoint=provider.get("endpoint"),
+            api_key=provider.get("api_key"),
+            region=provider.get("region"),
+            temperature=float(provider.get("temperature") or 0.7),
+            max_tokens=int(provider.get("max_tokens") or 2048),
+            oauth_config=oauth_cfg,
+        )
+        agents.append(
+            AgentConfig(
+                name=str(a.get("name") or ""),
+                model=str(a.get("model") or ""),
+                provider_config=provider_cfg,
+                description=str(a.get("description") or ""),
+                system_prompt=a.get("system_prompt"),
+                faiss_indexes=list(a.get("faiss_indexes") or []),
+                tools=list(a.get("tools") or []),
+                template=a.get("template"),
+            )
+        )
+
+    return PipelineConfig(
+        name=str(data.get("name") or ""),
+        agents=agents,
+        output=output_cfg,
+        execution_timeout=int(data.get("execution_timeout") or 600),
+    )
+
+
+def _load_pipeline_store() -> dict[str, PipelineConfig]:
+    if not _store_path.exists():
+        return {}
+    try:
+        raw = json.loads(_store_path.read_text(encoding="utf-8"))
+        pipelines = raw.get("pipelines") if isinstance(raw, dict) else None
+        if not isinstance(pipelines, dict):
+            return {}
+        loaded: dict[str, PipelineConfig] = {}
+        for name, cfg in pipelines.items():
+            if isinstance(cfg, dict):
+                loaded[str(name)] = _dict_to_config(cfg)
+        return loaded
+    except Exception:
+        return {}
+
+
+def _persist_pipeline_store(store: dict[str, PipelineConfig]) -> None:
+    _store_path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = _store_path.with_suffix(_store_path.suffix + ".tmp")
+    payload = {"pipelines": {name: asdict(cfg) for name, cfg in store.items()}}
+    tmp_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    tmp_path.replace(_store_path)
+
+
+_pipeline_store: dict[str, PipelineConfig] = _load_pipeline_store()
 
 
 def get_pipeline_store() -> dict[str, PipelineConfig]:
@@ -92,7 +170,9 @@ async def create_pipeline(
             detail=f"Pipeline config '{config.name}' already exists",
         )
 
-    store[config.name] = config
+    with _store_lock:
+        store[config.name] = config
+        _persist_pipeline_store(store)
     return {"name": config.name, "config": _config_to_dict(config)}
 
 
@@ -112,11 +192,13 @@ async def update_pipeline(
 
     config = _parse_and_validate(payload)
 
-    # Remove old key if the name changed
-    if config.name != name:
-        del store[name]
+    with _store_lock:
+        # Remove old key if the name changed
+        if config.name != name:
+            del store[name]
 
-    store[config.name] = config
+        store[config.name] = config
+        _persist_pipeline_store(store)
     return {"name": config.name, "config": _config_to_dict(config)}
 
 
@@ -132,7 +214,9 @@ async def delete_pipeline(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Pipeline config '{name}' not found",
         )
-    del store[name]
+    with _store_lock:
+        del store[name]
+        _persist_pipeline_store(store)
 
 
 # ---------------------------------------------------------------------------

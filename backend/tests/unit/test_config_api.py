@@ -289,7 +289,7 @@ class TestCreatePipeline:
     async def test_create_unsupported_format_returns_400(self, client: AsyncClient, admin_token: str):
         resp = await client.post(
             "/api/config/pipelines",
-            json={"raw": "data", "format": "xml"},
+            json={"raw": "data", "format": "toml"},
             headers={"Authorization": f"Bearer {admin_token}"},
         )
         assert resp.status_code == 400

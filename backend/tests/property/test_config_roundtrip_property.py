@@ -32,7 +32,7 @@ from app.services.config_parser import parse_config, serialize_config
 
 _provider_types = st.sampled_from(["bedrock", "openai_compatible", "github_copilot"])
 _formats = st.sampled_from(["yaml", "json"])
-_output_formats = st.sampled_from(["xml", "pdf", "docx", "md", "html"])
+_output_formats = st.sampled_from(["pdf", "docx", "md", "html", "pptx"])
 _tool_names = st.sampled_from(["read", "write", "python_repl", "shell", "query_faiss"])
 _faiss_indexes = st.sampled_from([0, 1, 2, 3])
 

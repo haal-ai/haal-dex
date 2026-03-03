@@ -5,6 +5,9 @@ Supports Bedrock, OpenAI-compatible, and GitHub Copilot providers.
 
 from __future__ import annotations
 
+import configparser
+import os
+from pathlib import Path
 from dataclasses import dataclass
 
 from app.models.pipeline import ProviderConfig
@@ -35,6 +38,43 @@ class HealthStatus:
 class ModelFactory:
     """Creates Strands model provider instances from ProviderConfig."""
 
+    @staticmethod
+    def _infer_aws_region_from_config() -> str | None:
+        """Infer AWS region from ~/.aws/config.
+
+        Resolution order:
+        1) AWS_PROFILE env var (or "default") selects the profile section
+        2) Read `region` from that profile section
+
+        Supports both section naming conventions used by AWS CLI:
+        - [default]
+        - [profile my-profile]
+        """
+        profile = os.getenv("AWS_PROFILE") or "default"
+
+        config_path = Path(os.path.expanduser("~")) / ".aws" / "config"
+        if not config_path.exists():
+            return None
+
+        parser = configparser.RawConfigParser()
+        try:
+            parser.read(config_path, encoding="utf-8")
+        except Exception:
+            return None
+
+        candidates = [
+            profile,
+            f"profile {profile}",
+        ]
+
+        for section in candidates:
+            if parser.has_option(section, "region"):
+                value = parser.get(section, "region").strip()
+                if value:
+                    return value
+
+        return None
+
     def create_model(self, provider_config: ProviderConfig):
         """Create the appropriate Strands model provider based on config.
 
@@ -54,9 +94,21 @@ class ModelFactory:
                         "strands.models.BedrockModel is not available. "
                         "Install strands-agents to use the Bedrock provider."
                     )
+
+                region = (
+                    provider_config.region
+                    or os.getenv("AWS_REGION")
+                    or os.getenv("AWS_DEFAULT_REGION")
+                    or self._infer_aws_region_from_config()
+                )
+
+                resolved_model_id = (
+                    provider_config.inference_profile_id
+                    or provider_config.model_id
+                )
                 return BedrockModel(
-                    model_id=provider_config.model_id,
-                    region_name=provider_config.region,
+                    model_id=resolved_model_id,
+                    region_name=region,
                     temperature=provider_config.temperature,
                     max_tokens=provider_config.max_tokens,
                 )

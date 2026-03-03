@@ -16,7 +16,7 @@
 7. ExecutionTimeline shows real-time progress: which agent is active, live log entries, streaming LLM responses
 8. MetricsDashboard displays token counts per agent in real-time
 9. On completion, OutputViewer shows the rendered document preview
-10. User exports the document in PDF, XML, or DOCX format
+10. User exports the document in PDF, DOCX, PPTX, Markdown, or HTML format
 
 **Alternate flows:**
 - If a file has an unsupported format, the DropZone shows an inline error
@@ -104,7 +104,7 @@ pipeline:
       template: "structured_doc_v1"
   output:
     template: "structured_doc_v1"
-    formats: ["xml", "pdf"]
+    formats: ["md", "pdf", "docx"]
 ```
 
 ---

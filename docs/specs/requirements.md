@@ -103,7 +103,7 @@ INTENT is a modern web application that allows users to submit input files, proc
 #### Acceptance Criteria
 
 1. THE Template_Registry SHALL store templates that define output format, document structure, validation rules, required metadata, and optional encryption settings
-2. THE Template_Registry SHALL support output formats including XML, PDF, DOCX, Markdown, and HTML
+2. THE Template_Registry SHALL support output formats including PDF, DOCX, Markdown, HTML, and PPTX
 3. THE Output_Generator SHALL render final documents by applying Jinja2 templates to the pipeline output data
 4. WHEN a rendered document fails template validation rules, THE Output_Generator SHALL report which validation rules were violated
 5. THE Output_Generator SHALL include required metadata (author, date, version, classification) in each generated document
@@ -115,7 +115,7 @@ INTENT is a modern web application that allows users to submit input files, proc
 #### Acceptance Criteria
 
 1. THE INTENT_UI SHALL display a preview of the generated output document against the selected template
-2. THE INTENT_UI SHALL allow the user to export the generated document in PDF, XML, and DOCX formats
+2. THE INTENT_UI SHALL allow the user to export the generated document in PDF, DOCX, PPTX, Markdown, and HTML formats
 3. WHEN a user requests an export, THE Output_Generator SHALL produce the document in the requested format within the same session
 
 ### Requirement 9: Execution Logging and Full Traceability

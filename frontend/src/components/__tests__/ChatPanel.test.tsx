@@ -50,6 +50,17 @@ function setupAuthFetch() {
         json: async () => ({ user_id: 'u1', username: 'testuser', roles: ['user'] }),
       }
     }
+    if (typeof url === 'string' && url.includes('/api/personalities/')) {
+      return {
+        ok: true,
+        json: async () => ({
+          personalities: [
+            { id: 'default', name: 'Default', description: 'General-purpose assistant.' },
+            { id: 'create-otf-variable', name: 'OTF Variable Expert', description: 'OTF help' },
+          ],
+        }),
+      }
+    }
     return { ok: false, json: async () => ({}) }
   })
 }
@@ -76,6 +87,7 @@ function simulateWsMessage(data: Record<string, unknown>) {
 describe('ChatPanel', () => {
   beforeEach(() => {
     localStorage.clear()
+    sessionStorage.clear()
     vi.spyOn(navigator, 'language', 'get').mockReturnValue('en-US')
     resetI18nInstance()
     mockFetch.mockClear()
@@ -121,6 +133,13 @@ describe('ChatPanel', () => {
       })
     })
 
+    it('renders the personality selector', async () => {
+      renderChatPanel()
+      await waitFor(() => {
+        expect(screen.getByTestId('chat-personality')).toBeInTheDocument()
+      })
+    })
+
     it('renders the messages area', async () => {
       renderChatPanel()
       await waitFor(() => {
@@ -155,9 +174,10 @@ describe('ChatPanel', () => {
 
       expect(mockWsInstance!.send).toHaveBeenCalledWith(
         JSON.stringify({
-          type: 'chat_message',
+          type: 'message',
           content: 'Hello world',
           language: 'en',
+          personality_id: 'default',
         })
       )
     })
@@ -174,9 +194,10 @@ describe('ChatPanel', () => {
 
       expect(mockWsInstance!.send).toHaveBeenCalledWith(
         JSON.stringify({
-          type: 'chat_message',
+          type: 'message',
           content: 'Bonjour',
           language: 'en',
+          personality_id: 'default',
         })
       )
     })
@@ -242,7 +263,7 @@ describe('ChatPanel', () => {
 
       // Simulate streamed tokens
       act(() => {
-        simulateWsMessage({ type: 'token', session_id: 'test-session', content: 'Hi ' })
+        simulateWsMessage({ type: 'chat_token', session_id: 'test-session', content: 'Hi ' })
       })
 
       await waitFor(() => {
@@ -252,7 +273,7 @@ describe('ChatPanel', () => {
       })
 
       act(() => {
-        simulateWsMessage({ type: 'token', session_id: 'test-session', content: 'there!' })
+        simulateWsMessage({ type: 'chat_token', session_id: 'test-session', content: 'there!' })
       })
 
       await waitFor(() => {
@@ -261,7 +282,7 @@ describe('ChatPanel', () => {
       })
 
       act(() => {
-        simulateWsMessage({ type: 'complete', session_id: 'test-session', content: '' })
+        simulateWsMessage({ type: 'chat_response', session_id: 'test-session', content: 'Hi there!' })
       })
 
       await waitFor(() => {
@@ -304,11 +325,11 @@ describe('ChatPanel', () => {
       })
 
       act(() => {
-        simulateWsMessage({ type: 'token', session_id: 'test-session', content: 'Answer' })
+        simulateWsMessage({ type: 'chat_token', session_id: 'test-session', content: 'Answer' })
       })
 
       act(() => {
-        simulateWsMessage({ type: 'complete', session_id: 'test-session', content: '' })
+        simulateWsMessage({ type: 'chat_response', session_id: 'test-session', content: 'Answer' })
       })
 
       await waitFor(() => {
@@ -332,10 +353,10 @@ describe('ChatPanel', () => {
 
       // Simulate assistant response
       act(() => {
-        simulateWsMessage({ type: 'token', session_id: 'test-session', content: 'First answer' })
+        simulateWsMessage({ type: 'chat_token', session_id: 'test-session', content: 'First answer' })
       })
       act(() => {
-        simulateWsMessage({ type: 'complete', session_id: 'test-session', content: '' })
+        simulateWsMessage({ type: 'chat_response', session_id: 'test-session', content: 'First answer' })
       })
 
       await waitFor(() => {
@@ -348,10 +369,10 @@ describe('ChatPanel', () => {
 
       // Simulate second assistant response
       act(() => {
-        simulateWsMessage({ type: 'token', session_id: 'test-session', content: 'Second answer' })
+        simulateWsMessage({ type: 'chat_token', session_id: 'test-session', content: 'Second answer' })
       })
       act(() => {
-        simulateWsMessage({ type: 'complete', session_id: 'test-session', content: '' })
+        simulateWsMessage({ type: 'chat_response', session_id: 'test-session', content: 'Second answer' })
       })
 
       await waitFor(() => {
@@ -413,9 +434,10 @@ describe('ChatPanel', () => {
 
       expect(mockWsInstance!.send).toHaveBeenCalledWith(
         JSON.stringify({
-          type: 'chat_message',
+          type: 'message',
           content: 'Bonjour le monde',
           language: 'fr',
+          personality_id: 'default',
         })
       )
     })

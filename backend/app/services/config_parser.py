@@ -243,6 +243,7 @@ def _dict_to_provider_config(
     return ProviderConfig(
         provider_type=data["provider_type"],
         model_id=data["model_id"],
+        inference_profile_id=data.get("inference_profile_id"),
         endpoint=data.get("endpoint"),
         api_key=data.get("api_key"),
         region=data.get("region"),
