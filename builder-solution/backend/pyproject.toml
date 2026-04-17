@@ -1,0 +1,28 @@
+[project]
+name = "intent-builder-backend"
+version = "0.1.0"
+description = "INTENT Builder backend wrapper"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "strands-agents>=0.1.0",
+    "strands-agents-builder>=0.1.0",
+    "pyyaml>=6.0",
+    "faiss-cpu>=1.7.0",
+    "sentence-transformers>=2.0.0",
+    "cryptography>=42.0.0",
+    "python-multipart>=0.0.9",
+    "python-magic>=0.4.27",
+    "Jinja2>=3.1.0",
+    "Markdown>=3.6",
+    "WeasyPrint>=62.0",
+    "python-docx>=1.1.0",
+    "python-pptx>=0.6.23",
+    "structlog>=24.0.0",
+    "PyJWT>=2.8.0",
+]
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
