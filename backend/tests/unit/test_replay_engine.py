@@ -237,7 +237,7 @@ class TestReplayAPI:
         """Create a test client with mocked dependencies."""
         from fastapi.testclient import TestClient
 
-        from app.main import create_app
+        from app.builder_main import create_app
         from app.api.replay import get_replay_engine
         from app.middleware.auth import get_current_user
         from app.models.auth import UserContext

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import sys
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -41,10 +43,15 @@ class TestGitHubCopilotModel:
         assert "temperature" in cfg
         assert "max_tokens" in cfg
 
-    def test_stream_requires_token(self):
-        model = GitHubCopilotModel(oauth_config=None, model_id="m1")
-        with pytest.raises(RuntimeError, match="oauth_config is not set"):
-            list(model.stream([{"role": "user", "content": "hi"}]))
+    def test_uses_device_flow_helper_when_oauth_config_missing(self):
+        with patch("app.engine.github_copilot_model.CopilotAuth") as mock_auth_cls:
+            mock_auth = MagicMock()
+            mock_auth.get_token.return_value = "copilot-token"
+            mock_auth_cls.return_value = mock_auth
+
+            model = GitHubCopilotModel(oauth_config=None, model_id="m1")
+
+            assert model._ensure_token() == "copilot-token"
 
     def test_update_config_works(self):
         model = GitHubCopilotModel(oauth_config=None, model_id="m1")
@@ -97,6 +104,34 @@ class TestCreateModelBedrock:
         mock_bedrock_cls.assert_called_once_with(
             model_id="anthropic.claude-3-sonnet",
             region_name="us-east-1",
+            temperature=0.5,
+            max_tokens=1024,
+        )
+        assert result is mock_instance
+
+    def test_uses_boto_session_without_region_name_when_profile_is_provided(self, factory: ModelFactory):
+        mock_bedrock_cls = MagicMock()
+        mock_instance = MagicMock()
+        mock_bedrock_cls.return_value = mock_instance
+        mock_session = MagicMock()
+
+        config = ProviderConfig(
+            provider_type="bedrock",
+            model_id="anthropic.claude-3-sonnet",
+            region="us-east-1",
+            profile="claude-sso",
+            temperature=0.5,
+            max_tokens=1024,
+        )
+
+        mock_boto3 = SimpleNamespace(Session=MagicMock(return_value=mock_session))
+
+        with patch("app.engine.model_factory.BedrockModel", mock_bedrock_cls), patch.dict(sys.modules, {"boto3": mock_boto3}):
+            result = factory.create_model(config)
+
+        mock_bedrock_cls.assert_called_once_with(
+            model_id="anthropic.claude-3-sonnet",
+            boto_session=mock_session,
             temperature=0.5,
             max_tokens=1024,
         )

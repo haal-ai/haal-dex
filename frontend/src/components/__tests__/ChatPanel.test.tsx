@@ -61,6 +61,32 @@ function setupAuthFetch() {
         }),
       }
     }
+    if (typeof url === 'string' && url.includes('/api/chat/provider/sign-in')) {
+      return {
+        ok: true,
+        json: async () => ({
+          provider_type: 'bedrock',
+          model_id: 'anthropic.claude-3-haiku-20240307-v1:0',
+          signed_in: true,
+          requires_sign_in: false,
+          display_name: 'AWS Bedrock',
+          message: null,
+        }),
+      }
+    }
+    if (typeof url === 'string' && url.includes('/api/chat/provider')) {
+      return {
+        ok: true,
+        json: async () => ({
+          provider_type: 'bedrock',
+          model_id: 'anthropic.claude-3-haiku-20240307-v1:0',
+          signed_in: true,
+          requires_sign_in: false,
+          display_name: 'AWS Bedrock',
+          message: null,
+        }),
+      }
+    }
     return { ok: false, json: async () => ({}) }
   })
 }
@@ -137,6 +163,14 @@ describe('ChatPanel', () => {
       renderChatPanel()
       await waitFor(() => {
         expect(screen.getByTestId('chat-personality')).toBeInTheDocument()
+      })
+    })
+
+    it('renders the provider status', async () => {
+      renderChatPanel()
+      await waitFor(() => {
+        expect(screen.getByTestId('chat-provider-status')).toBeInTheDocument()
+        expect(screen.getByText('AWS Bedrock ready')).toBeInTheDocument()
       })
     })
 
@@ -479,6 +513,56 @@ describe('ChatPanel', () => {
         expect(screen.getByTestId('chat-error')).toBeInTheDocument()
         expect(screen.getByText('Server error')).toBeInTheDocument()
       })
+    })
+  })
+
+  describe('provider sign-in gating', () => {
+    it('shows sign-in button and disables send when provider requires sign-in', async () => {
+      mockFetch.mockImplementation(async (url: string) => {
+        if (typeof url === 'string' && url.includes('/api/auth/me')) {
+          return {
+            ok: true,
+            json: async () => ({ user_id: 'u1', username: 'testuser', roles: ['user'] }),
+          }
+        }
+        if (typeof url === 'string' && url.includes('/api/personalities/')) {
+          return {
+            ok: true,
+            json: async () => ({ personalities: [{ id: 'default', name: 'Default', description: '' }] }),
+          }
+        }
+        if (typeof url === 'string' && url.includes('/api/chat/provider')) {
+          return {
+            ok: true,
+            json: async () => ({
+              provider_type: 'bedrock',
+              model_id: 'anthropic.claude-3-haiku-20240307-v1:0',
+              signed_in: false,
+              requires_sign_in: true,
+              display_name: 'AWS Bedrock',
+              message: 'AWS Bedrock sign-in is required before chatting.',
+            }),
+          }
+        }
+        return { ok: false, json: async () => ({}) }
+      })
+
+      localStorage.setItem('intent-auth-token', 'test-token')
+
+      render(
+        <AuthProvider>
+          <I18nProvider>
+            <ChatPanel sessionId="test-session" />
+          </I18nProvider>
+        </AuthProvider>
+      )
+
+      await waitFor(() => {
+        expect(screen.getByTestId('chat-provider-sign-in')).toBeInTheDocument()
+      })
+
+      expect(screen.getByTestId('chat-send')).toBeDisabled()
+      expect(screen.getByTestId('chat-provider-status')).toHaveTextContent('AWS Bedrock sign-in is required before chatting.')
     })
   })
 })

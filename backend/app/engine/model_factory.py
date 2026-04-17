@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 from dataclasses import dataclass
 
+from app.engine.bedrock_runtime_proxy import BedrockRuntimeClientProxy, resolve_aws_profile
 from app.models.pipeline import ProviderConfig
 
 # Try importing Strands SDK model providers; fall back to None if unavailable.
@@ -99,19 +100,49 @@ class ModelFactory:
                     provider_config.region
                     or os.getenv("AWS_REGION")
                     or os.getenv("AWS_DEFAULT_REGION")
-                    or self._infer_aws_region_from_config()
+                )
+                profile = (
+                    provider_config.profile
+                    or os.getenv("AWS_PROFILE")
+                    or os.getenv("AWS_DEFAULT_PROFILE")
                 )
 
                 resolved_model_id = (
                     provider_config.inference_profile_id
                     or provider_config.model_id
                 )
-                return BedrockModel(
-                    model_id=resolved_model_id,
-                    region_name=region,
-                    temperature=provider_config.temperature,
-                    max_tokens=provider_config.max_tokens,
-                )
+                bedrock_kwargs = {
+                    "model_id": resolved_model_id,
+                    "temperature": provider_config.temperature,
+                    "max_tokens": provider_config.max_tokens,
+                }
+                if profile:
+                    try:
+                        import boto3
+
+                        bedrock_kwargs["boto_session"] = boto3.Session(
+                            profile_name=profile,
+                            region_name=region,
+                        )
+                    except Exception:
+                        pass
+                if "boto_session" not in bedrock_kwargs:
+                    bedrock_kwargs["region_name"] = region
+
+                model = BedrockModel(**bedrock_kwargs)
+
+                client = getattr(model, "client", None)
+                if client is not None:
+                    try:
+                        model.client = BedrockRuntimeClientProxy(
+                            client,
+                            model_id=resolved_model_id,
+                            aws_profile=profile,
+                            aws_region=region,
+                        )
+                    except Exception:
+                        pass
+                return model
             case "openai_compatible":
                 if OpenAIModel is None:
                     raise ValueError(

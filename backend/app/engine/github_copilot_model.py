@@ -15,6 +15,7 @@ from urllib.error import URLError
 from urllib.parse import urlencode
 
 from app.models.pipeline import OAuthConfig
+from app.services.copilot_auth import CopilotAuth
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +60,7 @@ class GitHubCopilotModel(_BaseModel):
         self.oauth_config = oauth_config
         self.model_id = model_id
         self._token: str | None = None
+        self._copilot_auth = CopilotAuth() if oauth_config is None else None
         self._config: dict[str, Any] = {
             "model_id": model_id,
             "temperature": 0.7,
@@ -109,9 +111,22 @@ class GitHubCopilotModel(_BaseModel):
 
     def _ensure_token(self) -> str:
         """Return the cached token, acquiring a new one if necessary."""
+        if self._copilot_auth is not None:
+            self._token = self._copilot_auth.get_token()
+            return self._token
         if self._token is None:
             self._token = self._acquire_token()
         return self._token
+
+    def _request_headers(self, token: str) -> dict[str, str]:
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }
+        if self._copilot_auth is not None:
+            headers.update(self._copilot_auth.copilot_headers())
+        return headers
 
     def invalidate_token(self) -> None:
         """Clear the cached token so the next call re-acquires it."""
@@ -175,11 +190,7 @@ class GitHubCopilotModel(_BaseModel):
         req = urllib_request.Request(
             self.COPILOT_API_URL,
             data=payload,
-            headers={
-                "Authorization": f"Bearer {token}",
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-            },
+            headers=self._request_headers(token),
             method="POST",
         )
 

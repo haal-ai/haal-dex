@@ -1,8 +1,8 @@
 # INTENT
 
-INTENT is a full-stack web application that transforms unstructured input documents into structured output documents through a configurable AI agentic pipeline. Users submit files via drag-and-drop, interact through a bilingual chat interface (EN/FR), and receive generated documents rendered from configurable Jinja2 templates.
+INTENT is organized as two top-level application solutions in one repository: a standalone chat solution and a standalone builder solution. Both reuse shared backend and frontend code from the repository root.
 
-The backend orchestrates a sequential chain of AI agents using the AWS Strands Python SDK, each with its own LLM provider, tool access, and FAISS index bindings. Every execution step is logged for full traceability, replay, and audit compliance.
+The chat solution focuses on AWS Strands-based conversation flows. The builder solution focuses on file upload, pipeline execution, metrics, replay, and configuration workflows.
 
 ## Prerequisites
 
@@ -14,31 +14,37 @@ The backend orchestrates a sequential chain of AI agents using the AWS Strands P
 
 ```
 intent/
+├── chat-solution/              # Standalone chat application wrappers
+│   ├── backend/
+│   └── frontend/
+├── builder-solution/           # Standalone builder application wrappers
+│   ├── backend/
+│   └── frontend/
 ├── backend/                    # Python FastAPI backend
 │   ├── app/
-│   │   ├── api/                # REST & WebSocket endpoints
+│   │   ├── api/                # Shared REST & WebSocket endpoints
 │   │   ├── engine/             # Agentic engine (GraphFactory, AgentFactory, ModelFactory, tools)
 │   │   ├── middleware/         # Auth middleware (JWT)
 │   │   ├── models/             # Data models (Pydantic/dataclass)
 │   │   ├── services/           # Business logic services
 │   │   ├── config.py           # Application settings (env vars)
-│   │   ├── main.py             # FastAPI app entry point
+│   │   ├── main.py             # Chat-first development entry point
 │   │   └── pipeline_orchestrator.py  # Full pipeline flow coordinator
 │   ├── tests/
 │   │   ├── unit/               # Unit tests (pytest)
 │   │   ├── property/           # Property-based tests (Hypothesis)
 │   │   └── integration/        # Integration tests
 │   └── pyproject.toml
-├── frontend/                   # React 18+ TypeScript frontend
+├── frontend/                   # Shared React 18+ TypeScript frontend code
 │   ├── src/
-│   │   ├── components/         # UI components (DropZone, ChatPanel, OutputViewer, etc.)
+│   │   ├── components/         # Shared UI components
 │   │   ├── providers/          # ThemeProvider, I18nProvider
 │   │   ├── hooks/              # useAuth
 │   │   ├── i18n/               # EN/FR translation files
 │   │   ├── types/              # TypeScript type definitions
-│   │   └── App.tsx             # Main application layout
+│   │   └── App.tsx             # Chat-first development export
 │   └── package.json
-└── intent/
+└── docs/
     └── VISION_INTENT.md        # Product vision document
 ```
 
@@ -85,34 +91,37 @@ If you use `provider_type: "bedrock"` in pipeline configs, credentials and regio
 
 Pipeline configs may omit the Bedrock `region` field; the backend will fall back to `AWS_REGION` / `AWS_DEFAULT_REGION` / `~/.aws/config` (for `AWS_PROFILE`, defaulting to `default`).
 
-### Run the backend
+### Run the chat solution
 
 ```bash
-cd backend
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+cd chat-solution/backend
+uvicorn main:app --reload --host 0.0.0.0 --port 8001
 ```
 
-The API will be available at `http://localhost:8000`. A health check endpoint is at `GET /health`.
+The chat API will be available at `http://localhost:8001`. A health check endpoint is at `GET /health`.
 
-## Frontend Setup
-
-### Install dependencies
+### Run the chat frontend
 
 ```bash
-cd frontend
+cd chat-solution/frontend
 npm install
-```
-
-### Run the frontend
-
-```bash
-cd frontend
 npm run dev
 ```
 
-The UI will be available at `http://localhost:5173`.
+The chat UI will be available at `http://localhost:5173`.
 
 During local development the frontend calls backend endpoints at `/api/...` (and WebSockets under `/api/ws/...`). Ensure your Vite dev server proxies `/api` to the backend (this repo is configured accordingly).
+
+### Run the builder solution
+
+```bash
+cd builder-solution/backend
+uvicorn main:app --reload --host 0.0.0.0 --port 8002
+
+cd builder-solution/frontend
+npm install
+npm run dev
+```
 
 ## Default Dev Credentials
 

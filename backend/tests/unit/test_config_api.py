@@ -8,7 +8,7 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 
 from app.api.config import get_pipeline_store
-from app.main import create_app
+from app.builder_main import create_app
 
 
 # ---------------------------------------------------------------------------

@@ -22,10 +22,16 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Protocol
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
 
-from app.engine.tools import ALL_TOOLS
+from app.engine.agent_factory import AgentFactory
+from app.engine.model_factory import ModelFactory
+from app.engine.chat_tools import CHAT_TOOLS
+from app.middleware.auth import get_current_user
+from app.models.auth import UserContext
+from app.models.pipeline import AgentConfig
 from app.services.personality_store import PersonalityStore
+from app.services.chat_provider_service import ChatProviderService
 
 router = APIRouter(tags=["chat"])
 
@@ -95,25 +101,35 @@ def _get_personality_store() -> PersonalityStore:
     return PersonalityStore(store_path)
 
 
+def _get_chat_provider_service() -> ChatProviderService:
+    return ChatProviderService()
+
+
+def _build_chat_agent_config(personality) -> AgentConfig:
+    provider_config = _get_chat_provider_service().get_provider_config()
+    system_prompt = personality.combined_system_prompt()
+    return AgentConfig(
+        name=f"chat-{personality.id}",
+        model=f"{provider_config.provider_type}/{provider_config.model_id}",
+        provider_config=provider_config,
+        description=system_prompt,
+        system_prompt=system_prompt,
+        tools=list(personality.access.allowed_tools),
+        faiss_indexes=list(personality.access.allowed_faiss_indexes or []),
+    )
+
+
 def _try_create_strands_agent(
     *,
-    system_prompt: str,
-    allowed_tool_names: list[str],
+    personality,
     invocation_state: dict[str, Any],
 ) -> ChatAgent:
     """Attempt to create a real strands.Agent; fall back to default."""
     try:
-        from strands import Agent  # type: ignore[import-untyped]
-
         class _StrandsWrapper:
             def __init__(self) -> None:
-                tools: list[object] = []
-                for name in allowed_tool_names:
-                    tool_fn = ALL_TOOLS.get(name)
-                    if tool_fn is not None:
-                        tools.append(tool_fn)
-
-                self._agent = Agent(system_prompt=system_prompt, tools=tools)
+                agent_config = _build_chat_agent_config(personality)
+                self._agent = AgentFactory(ModelFactory()).create_agent(agent_config)
                 self._invocation_state = invocation_state
 
             async def respond(self, messages: list[dict[str, str]]) -> str:
@@ -139,6 +155,21 @@ def set_chat_agent(agent: ChatAgent | None) -> None:
     """Override the chat agent (useful for testing)."""
     global _chat_agent_override
     _chat_agent_override = agent
+
+
+@router.get("/api/chat/provider")
+async def get_chat_provider_status(user: UserContext = Depends(get_current_user)) -> dict:
+    _ = user
+    return _get_chat_provider_service().get_status().to_dict()
+
+
+@router.post("/api/chat/provider/sign-in")
+async def sign_in_chat_provider(user: UserContext = Depends(get_current_user)) -> dict:
+    _ = user
+    try:
+        return _get_chat_provider_service().sign_in().to_dict()
+    except RuntimeError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
 
 
 # ---------------------------------------------------------------------------
@@ -183,6 +214,17 @@ async def ws_chat(websocket: WebSocket, session_id: str) -> None:
                 if not isinstance(override, _DefaultChatAgent):
                     context.agent = override
                 else:
+                    provider_status = _get_chat_provider_service().get_status()
+                    if provider_status.requires_sign_in:
+                        await websocket.send_json(
+                            {
+                                "type": "error",
+                                "content": provider_status.message or "Provider sign-in is required before chatting.",
+                                "session_id": session_id,
+                            }
+                        )
+                        continue
+
                     personality = store.get(context.personality_id) or store.get("default")
                     if personality is None:
                         personality = store.list()[0] if store.list() else None
@@ -193,8 +235,7 @@ async def ws_chat(websocket: WebSocket, session_id: str) -> None:
                         access_state = personality.access.to_invocation_state(store.base_dir)
                         invocation_state = {**access_state, "personality_id": personality.id}
                         context.agent = _try_create_strands_agent(
-                            system_prompt=personality.combined_system_prompt(),
-                            allowed_tool_names=list(personality.access.allowed_tools),
+                            personality=personality,
                             invocation_state=invocation_state,
                         )
 

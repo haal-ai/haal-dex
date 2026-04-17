@@ -19,7 +19,7 @@ import pytest
 from hypothesis import given, settings, strategies as st
 from httpx import ASGITransport, AsyncClient
 
-from app.main import create_app
+from app.builder_main import create_app
 from app.middleware.auth import require_admin
 from app.models.auth import UserContext
 from app.services.auth_service import AuthService

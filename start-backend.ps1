@@ -1,7 +1,7 @@
 param(
   [string]$Profile = "claude-sso",
   [string]$Region = "us-east-1",
-  [int]$Port = 8000
+  [int]$Port = 8001
 )
 
 aws sso login --profile $Profile
@@ -65,7 +65,7 @@ try {
     throw "Python interpreter not found (or none with uvicorn installed). Please install backend Python deps (uvicorn) and ensure a non-MSYS2 python is available."
   }
 
-  & $pythonExe @pythonPrefixArgs -m uvicorn app.main:app --reload --port $Port
+  & $pythonExe @pythonPrefixArgs -m uvicorn app.chat_main:app --reload --port $Port
 } finally {
   Pop-Location
 }

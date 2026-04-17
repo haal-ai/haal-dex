@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 from httpx import ASGITransport, AsyncClient
 
-from app.main import create_app
+from app.chat_main import create_app
 from app.models.auth import LoginRequest
 from app.services.auth_service import AuthService
 

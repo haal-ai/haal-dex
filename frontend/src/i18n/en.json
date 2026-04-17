@@ -17,7 +17,11 @@
     "send": "Send",
     "thinking": "Thinking...",
     "error": "Failed to send message",
-    "sessionContext": "Session Context"
+    "sessionContext": "Session Context",
+    "providerReady": "{{provider}} ready",
+    "providerSignIn": "Sign in to {{provider}}",
+    "providerSigningIn": "Signing in...",
+    "providerRequired": "Provider sign-in is required before chatting"
   },
   "pipeline": {
     "title": "Pipeline Execution",

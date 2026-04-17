@@ -30,6 +30,15 @@ class Settings:
     jwt_algorithm: str = "HS256"
     jwt_expiration_minutes: int = 60
 
+    # --- Chat provider ---
+    chat_provider_type: str = "bedrock"
+    chat_model_id: str = "anthropic.claude-3-haiku-20240307-v1:0"
+    chat_aws_profile: str = ""
+    chat_aws_region: str = ""
+    chat_bedrock_inference_profile_id: str = ""
+    chat_openai_endpoint: str = ""
+    chat_openai_api_key: str = ""
+
     # --- CORS ---
     cors_origins: list[str] = field(default_factory=lambda: ["http://localhost:5173"])
 
@@ -59,6 +68,13 @@ def get_settings() -> Settings:
             os.getenv("INTENT_JWT_EXPIRATION_MINUTES", str(Settings.jwt_expiration_minutes))
         ),
         cors_origins=os.getenv("INTENT_CORS_ORIGINS", "http://localhost:5173").split(","),
+        chat_provider_type=os.getenv("INTENT_CHAT_PROVIDER_TYPE", Settings.chat_provider_type),
+        chat_model_id=os.getenv("INTENT_CHAT_MODEL_ID", Settings.chat_model_id),
+        chat_aws_profile=os.getenv("INTENT_CHAT_AWS_PROFILE", ""),
+        chat_aws_region=os.getenv("INTENT_CHAT_AWS_REGION", ""),
+        chat_bedrock_inference_profile_id=os.getenv("INTENT_CHAT_BEDROCK_INFERENCE_PROFILE_ID", ""),
+        chat_openai_endpoint=os.getenv("INTENT_CHAT_OPENAI_ENDPOINT", ""),
+        chat_openai_api_key=os.getenv("INTENT_CHAT_OPENAI_API_KEY", ""),
         encryption_key_input=os.getenv("INTENT_ENCRYPTION_KEY_INPUT", ""),
         encryption_key_output=os.getenv("INTENT_ENCRYPTION_KEY_OUTPUT", ""),
         encryption_key_log=os.getenv("INTENT_ENCRYPTION_KEY_LOG", ""),

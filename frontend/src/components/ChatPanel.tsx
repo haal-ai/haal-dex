@@ -9,6 +9,17 @@ interface PersonalitySummary {
   description: string
 }
 
+interface ChatProviderStatus {
+  provider_type: string
+  model_id: string
+  signed_in: boolean
+  requires_sign_in: boolean
+  display_name: string
+  region?: string | null
+  profile?: string | null
+  message?: string | null
+}
+
 export interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
@@ -38,6 +49,9 @@ export function ChatPanel({ sessionId }: ChatPanelProps) {
   const [input, setInput] = useState('')
   const [thinking, setThinking] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [providerStatus, setProviderStatus] = useState<ChatProviderStatus | null>(null)
+  const [providerLoading, setProviderLoading] = useState(false)
+  const [providerSigningIn, setProviderSigningIn] = useState(false)
   const [personalities, setPersonalities] = useState<PersonalitySummary[]>([])
   const [personalityId, setPersonalityId] = useState(() => {
     const saved = sessionStorage.getItem(`intent-chat-personality:${sessionId}`)
@@ -60,6 +74,32 @@ export function ChatPanel({ sessionId }: ChatPanelProps) {
   useEffect(() => {
     sessionStorage.setItem(`intent-chat-personality:${sessionId}`, personalityId)
   }, [personalityId, sessionId])
+
+  const loadProviderStatus = useCallback(async () => {
+    if (!user?.token) return
+    setProviderLoading(true)
+    try {
+      const resp = await fetch('/api/chat/provider', {
+        headers: { Authorization: `Bearer ${user.token}` },
+      })
+      if (!resp.ok) {
+        throw new Error('provider_status_failed')
+      }
+      const data = (await resp.json()) as ChatProviderStatus
+      setProviderStatus(data)
+      if (data.requires_sign_in) {
+        setError(data.message || t('chat.providerRequired'))
+      }
+    } catch {
+      setProviderStatus(null)
+    } finally {
+      setProviderLoading(false)
+    }
+  }, [t, user?.token])
+
+  useEffect(() => {
+    void loadProviderStatus()
+  }, [loadProviderStatus])
 
   useEffect(() => {
     let cancelled = false
@@ -174,9 +214,37 @@ export function ChatPanel({ sessionId }: ChatPanelProps) {
     }
   }, [sessionId, user?.token, language, t])
 
+  const handleProviderSignIn = useCallback(async () => {
+    if (!user?.token) return
+    setProviderSigningIn(true)
+    setError(null)
+    try {
+      const resp = await fetch('/api/chat/provider/sign-in', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${user.token}` },
+      })
+      const data = await resp.json().catch(() => ({}))
+      if (!resp.ok) {
+        throw new Error(typeof data?.detail === 'string' ? data.detail : t('chat.providerRequired'))
+      }
+      setProviderStatus(data as ChatProviderStatus)
+      setError(null)
+      await loadProviderStatus()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('chat.providerRequired'))
+    } finally {
+      setProviderSigningIn(false)
+    }
+  }, [loadProviderStatus, t, user?.token])
+
   const sendMessage = useCallback(() => {
     const trimmed = input.trim()
     if (!trimmed) return
+    if (providerStatus?.requires_sign_in) {
+      setError(providerStatus.message || t('chat.providerRequired'))
+      setThinking(false)
+      return
+    }
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
       setError(t('chat.error'))
       setThinking(false)
@@ -203,7 +271,7 @@ export function ChatPanel({ sessionId }: ChatPanelProps) {
         personality_id: personalityId,
       })
     )
-  }, [input, language, personalityId, t])
+  }, [input, language, personalityId, providerStatus, t])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -265,6 +333,31 @@ export function ChatPanel({ sessionId }: ChatPanelProps) {
 
       {/* Input area */}
       <div className="border-t dark:border-gray-700 px-4 py-3 flex flex-col gap-2">
+        <div className="flex items-center gap-2 text-sm">
+          <span data-testid="chat-provider-status" className="text-gray-600 dark:text-gray-300">
+            {providerLoading
+              ? t('chat.providerSigningIn')
+              : providerStatus?.signed_in
+                ? t('chat.providerReady', { provider: providerStatus.display_name })
+                : providerStatus?.message || t('chat.providerRequired')}
+          </span>
+          {providerStatus?.requires_sign_in && (
+            <button
+              data-testid="chat-provider-sign-in"
+              type="button"
+              onClick={handleProviderSignIn}
+              disabled={providerSigningIn}
+              className={cn(
+                'px-3 py-1.5 rounded-md text-xs font-medium text-white',
+                providerSigningIn ? 'bg-gray-400 cursor-not-allowed' : 'bg-amber-600 hover:bg-amber-700'
+              )}
+            >
+              {providerSigningIn
+                ? t('chat.providerSigningIn')
+                : t('chat.providerSignIn', { provider: providerStatus.display_name })}
+            </button>
+          )}
+        </div>
         <textarea
           data-testid="chat-input"
           value={input}
@@ -295,10 +388,10 @@ export function ChatPanel({ sessionId }: ChatPanelProps) {
           <button
             data-testid="chat-send"
             onClick={sendMessage}
-            disabled={thinking || !input.trim()}
+            disabled={thinking || providerLoading || providerSigningIn || !input.trim() || Boolean(providerStatus?.requires_sign_in)}
             className={cn(
               'px-4 py-2 rounded-md text-white text-sm font-medium',
-              thinking || !input.trim()
+              thinking || providerLoading || providerSigningIn || !input.trim() || Boolean(providerStatus?.requires_sign_in)
                 ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-blue-600 hover:bg-blue-700'
             )}

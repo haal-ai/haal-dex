@@ -19,7 +19,7 @@ import pytest
 from hypothesis import given, settings, strategies as st
 from httpx import ASGITransport, AsyncClient
 
-from app.main import create_app
+from app.chat_main import create_app
 
 # ---------------------------------------------------------------------------
 # Strategies

@@ -16,6 +16,7 @@ class ProviderConfig:
     provider_type: str  # "bedrock" | "openai_compatible" | "github_copilot"
     model_id: str
     inference_profile_id: str | None = None
+    profile: str | None = None
     endpoint: str | None = None
     api_key: str | None = None
     region: str | None = None

@@ -1,4 +1,4 @@
-import { useState, type ReactNode, type FormEvent } from 'react'
+import { useRef, useState, type ReactNode, type FormEvent, type KeyboardEvent } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useLanguage } from '../providers/I18nProvider'
 
@@ -13,6 +13,7 @@ export function AuthGate({ children, requireAdmin = false }: AuthGateProps) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const formRef = useRef<HTMLFormElement | null>(null)
 
   if (loading) {
     return null
@@ -31,6 +32,14 @@ export function AuthGate({ children, requireAdmin = false }: AuthGateProps) {
       }
     }
 
+    const handleEnterSubmit = (e: KeyboardEvent<HTMLInputElement>) => {
+      if (e.key !== 'Enter') {
+        return
+      }
+      e.preventDefault()
+      formRef.current?.requestSubmit()
+    }
+
     return (
       <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-gray-50 to-gray-200 dark:from-gray-950 dark:to-gray-900">
         <div className="w-full max-w-md">
@@ -47,6 +56,7 @@ export function AuthGate({ children, requireAdmin = false }: AuthGateProps) {
           </div>
 
           <form
+            ref={formRef}
             onSubmit={handleSubmit}
             data-testid="login-form"
             className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-950/70 backdrop-blur shadow-lg p-6 space-y-4"
@@ -61,6 +71,7 @@ export function AuthGate({ children, requireAdmin = false }: AuthGateProps) {
                 autoComplete="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                onKeyDown={handleEnterSubmit}
                 data-testid="username-input"
                 className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-50 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -76,6 +87,7 @@ export function AuthGate({ children, requireAdmin = false }: AuthGateProps) {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={handleEnterSubmit}
                 data-testid="password-input"
                 className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-50 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />

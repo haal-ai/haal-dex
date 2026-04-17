@@ -16,7 +16,7 @@ from fastapi.testclient import TestClient
 from app.engine.agent_factory import AgentFactory
 from app.engine.graph_factory import GraphFactory, PipelineResult
 from app.engine.model_factory import ModelFactory
-from app.main import create_app
+from app.builder_main import create_app
 from app.models.auth import UserContext
 from app.models.pipeline import (
     AgentConfig,

@@ -3,7 +3,7 @@ set -euo pipefail
 
 PROFILE="${AWS_PROFILE:-claude-sso}"
 REGION="${AWS_REGION:-us-east-1}"
-PORT="${PORT:-8000}"
+PORT="${PORT:-8001}"
 
 aws sso login --profile "$PROFILE"
 
@@ -25,4 +25,4 @@ aws sts get-caller-identity --profile "$PROFILE"
 
 cd "$SCRIPT_DIR/backend"
 
-python -m uvicorn app.main:app --reload --port "$PORT"
+python -m uvicorn app.chat_main:app --reload --port "$PORT"

@@ -17,7 +17,11 @@
     "send": "Envoyer",
     "thinking": "Réflexion en cours...",
     "error": "Échec de l'envoi du message",
-    "sessionContext": "Contexte de la session"
+    "sessionContext": "Contexte de la session",
+    "providerReady": "{{provider}} prêt",
+    "providerSignIn": "Se connecter à {{provider}}",
+    "providerSigningIn": "Connexion en cours...",
+    "providerRequired": "Une connexion au fournisseur est requise avant de discuter"
   },
   "pipeline": {
     "title": "Exécution du pipeline",

@@ -1,9 +1,10 @@
 ﻿# HAAL-DEX (Document Extractor)
 
-HAAL-DEX is a full-stack web application that transforms unstructured input documents into structured output documents through a configurable AI agentic pipeline. Built on AWS Strands Python SDK with a React 18+ TypeScript frontend and Python FastAPI backend.
+HAAL-DEX is organized as two separate top-level solutions built on shared code. The repository contains a standalone chat solution and a standalone builder solution, both backed by shared React and FastAPI modules.
 
 ## Features
 
+- **Standalone chat solution** — Dedicated conversational interface based on AWS Strands
 - **Drag-and-drop file upload** — PPTX, DOCX, PDF, TXT, HTML, Markdown
 - **Configurable AI agent pipeline** — Sequential chain of agents, each with its own LLM provider
 - **Multi-provider LLM support** — AWS Bedrock, OpenAI-compatible, GitHub Copilot
@@ -17,34 +18,62 @@ HAAL-DEX is a full-stack web application that transforms unstructured input docu
 - **Token metrics** — Per-agent token/call tracking with CSV export
 - **Dark/light theme** — OS preference detection with manual toggle
 
+## Solutions
+
+- `chat-solution/` — standalone chat product
+- `builder-solution/` — standalone pipeline and builder product
+
+These two folders are the only supported application surfaces. The root `frontend/` and `backend/` directories now act as shared implementation plus a chat-first development default, not as a separate combined product.
+
+Shared implementation lives in:
+
+- `frontend/src` — reusable React components, providers, and app shells
+- `backend/app` — reusable FastAPI routers, services, and app factories
+
 ## Quick Start
 
-### Backend
+### Chat solution backend
 
 ```bash
-cd backend
-pip install -e ".[dev]"
-uvicorn app.main:app --reload --port 8000
+cd chat-solution/backend
+pip install -e .
+uvicorn main:app --reload --port 8001
 ```
 
-### Frontend
+### Chat solution frontend
 
 ```bash
-cd frontend
+cd chat-solution/frontend
 npm install
 npm run dev
 ```
 
-The UI runs at http://localhost:5173, backend API at http://localhost:8000.
+### Builder solution backend
+
+```bash
+cd builder-solution/backend
+pip install -e .
+uvicorn main:app --reload --port 8002
+```
+
+### Builder solution frontend
+
+```bash
+cd builder-solution/frontend
+npm install
+npm run dev
+```
+
+The chat UI proxies to `http://localhost:8001` and the builder UI proxies to `http://localhost:8002`.
 
 ## Testing
 
 ```bash
-# Backend (443 tests)
+# Shared backend tests
 cd backend
 python -m pytest tests/ --tb=short -q
 
-# Frontend (138 tests)
+# Shared frontend tests
 cd frontend
 npx vitest --run
 ```

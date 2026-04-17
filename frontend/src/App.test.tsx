@@ -1,5 +1,4 @@
 import { render, screen, waitFor, cleanup } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { resetI18nInstance } from './providers/I18nProvider'
 import App from './App'
@@ -95,76 +94,34 @@ describe('App', () => {
     render(<App />)
 
     await waitFor(() => {
-      expect(screen.getByTestId('app-layout')).toBeInTheDocument()
+      expect(screen.getByTestId('chat-app-layout')).toBeInTheDocument()
     })
 
-    // Top bar elements
-    expect(screen.getByTestId('app-title')).toHaveTextContent('INTENT')
+    expect(screen.getByTestId('chat-app-title')).toHaveTextContent('INTENT Chat')
     expect(screen.getByTestId('theme-toggle')).toBeInTheDocument()
     expect(screen.getByTestId('language-switch')).toBeInTheDocument()
     expect(screen.getByTestId('logout-button')).toBeInTheDocument()
-
-    // Sidebar with chat
-    expect(screen.getByTestId('sidebar')).toBeInTheDocument()
     expect(screen.getByTestId('chat-panel')).toBeInTheDocument()
-
-    // Tab navigation
-    expect(screen.getByTestId('tab-navigation')).toBeInTheDocument()
-    expect(screen.getByTestId('tab-upload')).toBeInTheDocument()
-    expect(screen.getByTestId('tab-pipeline')).toBeInTheDocument()
-    expect(screen.getByTestId('tab-output')).toBeInTheDocument()
-    expect(screen.getByTestId('tab-metrics')).toBeInTheDocument()
-    expect(screen.getByTestId('tab-replay')).toBeInTheDocument()
-
-    // Default tab content is Upload (DropZone)
-    expect(screen.getByTestId('dropzone')).toBeInTheDocument()
+    expect(screen.queryByTestId('tab-navigation')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('dropzone')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('execution-timeline')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('output-viewer')).not.toBeInTheDocument()
   })
 
-  it('hides config tab for non-admin users', async () => {
-    setupFetchMock(true, false)
-    localStorage.setItem('intent-auth-token', 'test-token')
-    render(<App />)
-
-    await waitFor(() => {
-      expect(screen.getByTestId('app-layout')).toBeInTheDocument()
-    })
-
-    expect(screen.queryByTestId('tab-config')).not.toBeInTheDocument()
-  })
-
-  it('shows config tab for admin users', async () => {
+  it('does not render legacy builder controls', async () => {
     setupFetchMock(true, true)
     localStorage.setItem('intent-auth-token', 'test-token')
     render(<App />)
 
     await waitFor(() => {
-      expect(screen.getByTestId('app-layout')).toBeInTheDocument()
+      expect(screen.getByTestId('chat-app-layout')).toBeInTheDocument()
     })
 
-    expect(screen.getByTestId('tab-config')).toBeInTheDocument()
-  })
-
-  it('switches tabs when clicked', async () => {
-    setupFetchMock(true)
-    localStorage.setItem('intent-auth-token', 'test-token')
-    render(<App />)
-
-    await waitFor(() => {
-      expect(screen.getByTestId('app-layout')).toBeInTheDocument()
-    })
-
-    const user = userEvent.setup()
-
-    // Switch to Pipeline tab
-    await user.click(screen.getByTestId('tab-pipeline'))
-    await waitFor(() => {
-      expect(screen.getByTestId('execution-timeline')).toBeInTheDocument()
-    })
-
-    // Switch to Output tab
-    await user.click(screen.getByTestId('tab-output'))
-    await waitFor(() => {
-      expect(screen.getByTestId('output-viewer')).toBeInTheDocument()
-    })
+    expect(screen.queryByTestId('tab-upload')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('tab-pipeline')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('tab-output')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('tab-metrics')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('tab-replay')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('tab-config')).not.toBeInTheDocument()
   })
 })
