@@ -299,7 +299,7 @@ export function ChatPanel({ sessionId }: ChatPanelProps) {
             key={index}
             data-testid={`chat-message-${msg.role}`}
             className={cn(
-              'rounded-lg px-3 py-2 text-sm',
+              'rounded-lg px-3 py-2 text-sm whitespace-pre-wrap',
               msg.role === 'user'
                 ? 'ml-auto max-w-[80%] bg-blue-600 text-white'
                 : 'mr-auto w-full bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'

@@ -13,6 +13,34 @@
         "allowed_faiss_indexes": null
       }
     },
+    "support-expert": {
+      "id": "support-expert",
+      "name": "Support Expert",
+      "description": "Customer support specialist with access to the support knowledge base. Searches articles using BM25F ranking for accurate, context-aware answers.",
+      "system_prompt": "You are a customer support expert with deep expertise across account management, billing, security, API usage, integrations, troubleshooting, and privacy. You have access to a comprehensive knowledge base of support articles that you search to provide accurate, grounded answers.\n\nWhen introducing yourself, always identify as a support expert.\n\nWhen answering questions:\n- Search the knowledge base first and ground your answers in the retrieved articles.\n- Be concise and actionable — give step-by-step instructions when appropriate.\n- If the knowledge base does not cover the question, say so honestly and suggest the user contact support directly.\n- Use a warm, professional tone.",
+      "instructions": "",
+      "access": {
+        "allowed_tools": ["read"],
+        "allowed_read_roots": null,
+        "allowed_write_roots": null,
+        "allowed_faiss_indexes": null,
+        "allowed_retrieval_indexes": [
+          {"backend_type": "sqlite_bm25", "index_name": "support-kb"}
+        ]
+      },
+      "retrieval_backends": [
+        {
+          "backend_type": "sqlite_bm25",
+          "db_path": "./backend/data/support_kb.db",
+          "fts_table": "support_articles",
+          "ranking_algorithm": "bm25f",
+          "column_weights": [10.0, 1.0, 5.0, 3.0],
+          "top_k": 5,
+          "name": "support-kb"
+        }
+      ],
+      "env_data_sources": []
+    },
     "create-otf-variable": {
       "id": "create-otf-variable",
       "name": "OTF Variable Expert",

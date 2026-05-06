@@ -45,18 +45,26 @@ class AgentFactory:
     def __init__(self, model_factory: ModelFactory) -> None:
         self.model_factory = model_factory
 
-    def create_agent(self, agent_config: AgentConfig) -> Any:
+    def create_agent(
+        self,
+        agent_config: AgentConfig,
+        permitted_tools: list[Any] | None = None,
+    ) -> Any:
         """Create a strands.Agent with the correct model, tools, and system prompt.
 
         Steps:
         1. Create model via ModelFactory.create_model(agent_config.provider_config)
         2. Filter ALL_TOOLS to only include tools listed in agent_config.tools
+           (or use *permitted_tools* when provided by the caller, e.g. from ToolRegistry)
         3. If agent_config.faiss_indexes is non-empty, include query_faiss tool
         4. Log warning for any tool in agent_config.tools that's not in ALL_TOOLS
         5. Return a strands.Agent instance (or AgentSpec if strands not installed)
 
         Args:
             agent_config: Configuration for the agent to create.
+            permitted_tools: Optional pre-filtered tool objects (e.g. from
+                ToolRegistry.get_tools_for_personality).  When provided the
+                tool-name resolution against ALL_TOOLS is skipped.
 
         Returns:
             A strands.Agent instance, or an AgentSpec dataclass if strands is not installed.
@@ -65,22 +73,25 @@ class AgentFactory:
         model = self.model_factory.create_model(agent_config.provider_config)
 
         # 2 & 4. Select permitted tools, log warnings for unknown tools
-        permitted_tools: list[Any] = []
-        for tool_name in agent_config.tools:
-            if tool_name in ALL_TOOLS:
-                permitted_tools.append(ALL_TOOLS[tool_name])
-            else:
-                logger.warning(
-                    "Agent '%s': tool '%s' is not in the permitted tool set and will be denied.",
-                    agent_config.name,
-                    tool_name,
-                )
+        if permitted_tools is not None:
+            resolved_tools: list[Any] = list(permitted_tools)
+        else:
+            resolved_tools = []
+            for tool_name in agent_config.tools:
+                if tool_name in ALL_TOOLS:
+                    resolved_tools.append(ALL_TOOLS[tool_name])
+                else:
+                    logger.warning(
+                        "Agent '%s': tool '%s' is not in the permitted tool set and will be denied.",
+                        agent_config.name,
+                        tool_name,
+                    )
 
         # 3. Add query_faiss tool if agent has FAISS index bindings
         if agent_config.faiss_indexes:
             faiss_tool = ALL_TOOLS.get("query_faiss")
-            if faiss_tool is not None and faiss_tool not in permitted_tools:
-                permitted_tools.append(faiss_tool)
+            if faiss_tool is not None and faiss_tool not in resolved_tools:
+                resolved_tools.append(faiss_tool)
 
         # 5. Resolve system prompt: prefer explicit system_prompt, fall back to description
         system_prompt = agent_config.system_prompt or agent_config.description
@@ -89,7 +100,7 @@ class AgentFactory:
         if _STRANDS_AGENT_AVAILABLE:
             return Agent(
                 model=model,
-                tools=permitted_tools,
+                tools=resolved_tools,
                 system_prompt=system_prompt,
                 name=agent_config.name,
             )
@@ -97,7 +108,7 @@ class AgentFactory:
         # Fallback when strands is not installed
         return AgentSpec(
             model=model,
-            tools=permitted_tools,
+            tools=resolved_tools,
             system_prompt=system_prompt,
             name=agent_config.name,
         )

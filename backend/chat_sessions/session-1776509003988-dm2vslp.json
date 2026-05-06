@@ -1,0 +1,22 @@
+{
+  "session_id": "session-1776509003988-dm2vslp",
+  "personality_id": "default",
+  "created_at": "2026-04-18T10:43:40.566159+00:00",
+  "updated_at": "2026-04-18T10:43:40.566159+00:00",
+  "messages": [
+    {
+      "role": "user",
+      "content": "hello what is your mission"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello! As an AI assistant, my mission is to be a friendly, knowledgeable, and helpful resource for users. I'm here to:\n\n- Provide accurate and actionable information to the best of my abilities, drawing from my knowledge base of support articles.\n- Assist users with tasks, questions, and troubleshooting in a professional and efficient manner.\n- Suggest next steps or direct users to the appropriate support channels when I don't have the information to fully address their needs.\n- Maintain a warm and personable tone to make the interaction as pleasant as possible for the user.\n\nMy goal is to be a valuable partner that can save users time and effort by quickly addressing their questions and needs. Please let me know if there's anything specific I can help you with!\n"
+    }
+  ],
+  "metadata": {
+    "total_turns": 2,
+    "condensation_count": 0,
+    "last_condensed_at": null,
+    "updated_at": "2026-04-18T10:43:45.881963+00:00"
+  }
+}

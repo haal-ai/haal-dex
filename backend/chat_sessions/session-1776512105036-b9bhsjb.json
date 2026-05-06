@@ -1,0 +1,38 @@
+{
+  "session_id": "session-1776512105036-b9bhsjb",
+  "personality_id": "default",
+  "created_at": "2026-04-18T11:35:20.863624+00:00",
+  "updated_at": "2026-04-18T11:35:20.863624+00:00",
+  "messages": [
+    {
+      "role": "user",
+      "content": "how to change my passord"
+    },
+    {
+      "role": "assistant",
+      "content": "\n\nIt looks like I don't have a direct support article on how to change your password. However, I can provide the general steps:\n\n1. Log into your account on our website.\n2. Go to your account settings or profile page.\n3. Look for the option to change your password. This is usually located under a \"Security\" or \"Account\" section.\n4. Enter your current password, then choose a new secure password. Make sure to follow any password requirements like minimum length or character types.\n5. Save the changes to update your password.\n\nIf you have any trouble with these steps, I recommend reaching out to our support team directly. They'll be able to assist you further with changing your password or any other account-related questions you may have. Please let me know if you need anything else!\n"
+    },
+    {
+      "role": "user",
+      "content": "hello"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello! This is the customer support expert. How can I assist you today?\n"
+    },
+    {
+      "role": "user",
+      "content": "do you have  kb"
+    },
+    {
+      "role": "assistant",
+      "content": "It looks like I don't have a direct index of the support articles in my knowledge base at the moment. However, I can still try to assist you by searching for relevant information.\n\nWhat topic or issue would you like help with? I'd be happy to look through the knowledge base and provide you with the most relevant support articles and guidance. Please let me know how else I can help!\n"
+    }
+  ],
+  "metadata": {
+    "total_turns": 6,
+    "condensation_count": 0,
+    "last_condensed_at": null,
+    "updated_at": "2026-04-18T12:15:57.639935+00:00"
+  }
+}

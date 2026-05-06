@@ -1,0 +1,22 @@
+{
+  "session_id": "session-1776510520158-7ymwy5l",
+  "personality_id": "default",
+  "created_at": "2026-04-18T11:08:53.852644+00:00",
+  "updated_at": "2026-04-18T11:08:53.852644+00:00",
+  "messages": [
+    {
+      "role": "user",
+      "content": "do you have a kb"
+    },
+    {
+      "role": "assistant",
+      "content": "\n\nIt appears we do not have a knowledge base file available at the moment. As a customer support expert, I do not have direct access to a comprehensive knowledge base. \n\nHowever, I am happy to assist you directly with your questions or concerns. Please feel free to provide more details about what you need help with, and I will do my best to provide an accurate and helpful response. If I am unable to fully address your issue, I can escalate it to our support team for further assistance. How can I help you today?\n"
+    }
+  ],
+  "metadata": {
+    "total_turns": 2,
+    "condensation_count": 0,
+    "last_condensed_at": null,
+    "updated_at": "2026-04-18T11:08:58.880287+00:00"
+  }
+}

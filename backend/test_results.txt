@@ -1,0 +1,680 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.2, pytest-8.4.2, pluggy-1.6.0 -- C:\Users\ppaccaud\AppData\Local\Programs\Python\Python313\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+rootdir: C:\Users\ppaccaud\coderepos\haal-ai\haal-dex\backend
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.9.0, hypothesis-6.151.9, langsmith-0.7.9, asyncio-1.3.0, cov-7.0.0, mock-3.15.1
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 538 items
+
+tests/integration/test_auth_flow.py::TestLoginFlow::test_login_returns_token PASSED [  0%]
+tests/integration/test_auth_flow.py::TestLoginFlow::test_login_invalid_password_returns_401 PASSED [  0%]
+tests/integration/test_auth_flow.py::TestLoginFlow::test_login_unknown_user_returns_401 PASSED [  0%]
+tests/integration/test_auth_flow.py::TestLoginFlow::test_me_returns_user_profile PASSED [  0%]
+tests/integration/test_auth_flow.py::TestUnauthenticatedRejection::test_file_upload_requires_auth PASSED [  0%]
+tests/integration/test_auth_flow.py::TestUnauthenticatedRejection::test_pipeline_execute_requires_auth PASSED [  1%]
+tests/integration/test_auth_flow.py::TestUnauthenticatedRejection::test_config_list_requires_auth PASSED [  1%]
+tests/integration/test_auth_flow.py::TestUnauthenticatedRejection::test_output_preview_requires_auth PASSED [  1%]
+tests/integration/test_auth_flow.py::TestUnauthenticatedRejection::test_metrics_requires_auth PASSED [  1%]
+tests/integration/test_auth_flow.py::TestUnauthenticatedRejection::test_replay_requires_auth PASSED [  1%]
+tests/integration/test_auth_flow.py::TestUnauthenticatedRejection::test_invalid_token_rejected PASSED [  2%]
+tests/integration/test_auth_flow.py::TestRoleBasedAccess::test_non_admin_cannot_list_pipelines PASSED [  2%]
+tests/integration/test_auth_flow.py::TestRoleBasedAccess::test_non_admin_cannot_create_pipeline PASSED [  2%]
+tests/integration/test_auth_flow.py::TestRoleBasedAccess::test_admin_can_list_pipelines PASSED [  2%]
+tests/integration/test_auth_flow.py::TestRoleBasedAccess::test_regular_user_can_execute_pipeline PASSED [  2%]
+tests/integration/test_pipeline_e2e.py::TestFileUploadFlow::test_upload_txt_file PASSED [  2%]
+tests/integration/test_pipeline_e2e.py::TestFileUploadFlow::test_upload_multiple_files PASSED [  3%]
+tests/integration/test_pipeline_e2e.py::TestFileUploadFlow::test_upload_unsupported_format_returns_400 PASSED [  3%]
+tests/integration/test_pipeline_e2e.py::TestFileUploadFlow::test_upload_requires_auth PASSED [  3%]
+tests/integration/test_pipeline_e2e.py::TestPipelineExecution::test_execute_returns_completed PASSED [  3%]
+tests/integration/test_pipeline_e2e.py::TestPipelineExecution::test_execute_multi_agent_pipeline PASSED [  3%]
+tests/integration/test_pipeline_e2e.py::TestPipelineExecution::test_failed_pipeline_reports_error PASSED [  4%]
+tests/integration/test_pipeline_e2e.py::TestFileUploadToPipelineFlow::test_upload_then_execute PASSED [  4%]
+tests/integration/test_pipeline_e2e.py::TestEncryptionAcrossPipeline::test_fernet_encrypt_decrypt_roundtrip PASSED [  4%]
+tests/integration/test_pipeline_e2e.py::TestEncryptionAcrossPipeline::test_independent_keys_per_target PASSED [  4%]
+tests/integration/test_pipeline_e2e.py::TestEncryptionAcrossPipeline::test_disabled_encryption_passes_through PASSED [  4%]
+tests/integration/test_websocket_streaming.py::TestChatWebSocket::test_chat_sends_tokens_then_response FAILED [  5%]
+tests/integration/test_websocket_streaming.py::TestChatWebSocket::test_chat_maintains_session_context FAILED [  5%]
+tests/integration/test_websocket_streaming.py::TestChatWebSocket::test_chat_unknown_type_returns_error FAILED [  5%]
+tests/integration/test_websocket_streaming.py::TestExecutionWebSocket::test_ws_execution_streams_pipeline_complete PASSED [  5%]
+tests/integration/test_websocket_streaming.py::TestExecutionWebSocket::test_ws_execution_unknown_session PASSED [  5%]
+tests/integration/test_websocket_streaming.py::TestExecutionWebSocket::test_ws_execution_no_config_returns_error PASSED [  5%]
+tests/integration/test_websocket_streaming.py::TestExecutionWebSocket::test_ws_execution_failure_sends_error PASSED [  6%]
+tests/integration/test_websocket_streaming.py::TestExecutionWebSocket::test_ws_execution_multi_agent_reports_all PASSED [  6%]
+tests/property/test_auth_rejection_property.py::test_unauthenticated_requests_rejected_with_401 PASSED [  6%]
+tests/property/test_config_parse_error_property.py::test_invalid_config_raises_error_with_location_and_nature PASSED [  6%]
+tests/property/test_config_roundtrip_property.py::test_serialize_then_parse_produces_equivalent_config PASSED [  6%]
+tests/property/test_config_roundtrip_property.py::test_idempotent_round_trip PASSED [  7%]
+tests/property/test_config_validation_property.py::test_invalid_config_returns_non_empty_errors FAILED [  7%]
+tests/property/test_config_validation_property.py::test_invalid_config_errors_identify_specific_fields FAILED [  7%]
+tests/property/test_encryption_roundtrip_property.py::test_encrypt_then_decrypt_returns_original_data PASSED [  7%]
+tests/property/test_encryption_roundtrip_property.py::test_each_target_uses_independent_key_and_algorithm PASSED [  7%]
+tests/property/test_execution_log_property.py::test_execution_log_completeness PASSED [  7%]
+tests/property/test_execution_log_property.py::test_execution_logs_are_valid_json PASSED [  8%]
+tests/property/test_execution_log_property.py::test_session_logs_include_input_and_output_documents PASSED [  8%]
+tests/property/test_faiss_property.py::test_faiss_accepts_1_to_4_indexes PASSED [  8%]
+tests/property/test_faiss_property.py::test_faiss_rejects_more_than_4_indexes PASSED [  8%]
+tests/property/test_faiss_property.py::test_faiss_results_ranked_by_descending_score PASSED [  8%]
+tests/property/test_file_format_property.py::test_supported_format_accepted PASSED [  9%]
+tests/property/test_file_format_property.py::test_unsupported_format_rejected_with_error PASSED [  9%]
+tests/property/test_file_format_property.py::test_no_extension_rejected PASSED [  9%]
+tests/property/test_file_roundtrip_property.py::test_write_then_read_returns_original_content PASSED [  9%]
+tests/property/test_llm_error_property.py::test_unavailable_bedrock_error_identifies_provider_and_reason PASSED [  9%]
+tests/property/test_llm_error_property.py::test_unavailable_openai_error_identifies_provider_and_reason PASSED [ 10%]
+tests/property/test_llm_error_property.py::test_unsupported_provider_error_identifies_provider_and_reason PASSED [ 10%]
+tests/property/test_llm_routing_property.py::test_bedrock_routing_targets_correct_provider_and_model PASSED [ 10%]
+tests/property/test_llm_routing_property.py::test_openai_routing_targets_correct_provider_and_model PASSED [ 10%]
+tests/property/test_llm_routing_property.py::test_github_copilot_routing_targets_correct_provider_and_model PASSED [ 10%]
+tests/property/test_metrics_csv_property.py::test_metrics_csv_round_trip PASSED [ 10%]
+tests/property/test_pipeline_property.py::test_pipeline_agent_output_chaining PASSED [ 11%]
+tests/property/test_pipeline_property.py::test_pipeline_failure_halts_and_reports PASSED [ 11%]
+tests/property/test_pipeline_property.py::test_pipeline_accepts_any_positive_agent_count PASSED [ 11%]
+tests/property/test_rbac_property.py::test_non_admin_users_denied_admin_endpoints PASSED [ 11%]
+tests/property/test_rbac_property.py::test_admin_users_allowed_admin_endpoints PASSED [ 11%]
+tests/property/test_repl_property.py::test_python_repl_returns_correct_result PASSED [ 12%]
+tests/property/test_replay_property.py::test_replay_preserves_execution_data PASSED [ 12%]
+tests/property/test_template_output_property.py::test_template_completeness PASSED [ 12%]
+tests/property/test_template_output_property.py::test_document_metadata_completeness PASSED [ 12%]
+tests/property/test_template_output_property.py::test_jinja2_rendering_produces_non_empty_output PASSED [ 12%]
+tests/property/test_template_output_property.py::test_validation_failure_reports_violated_rules PASSED [ 13%]
+tests/property/test_template_output_property.py::test_export_format_matches_request PASSED [ 13%]
+tests/property/test_tool_permission_property.py::test_denied_tools_are_excluded_and_logged PASSED [ 13%]
+tests/unit/test_agent_factory.py::TestModelResolution::test_delegates_to_model_factory PASSED [ 13%]
+tests/unit/test_agent_factory.py::TestModelResolution::test_agent_receives_model_from_factory PASSED [ 13%]
+tests/unit/test_agent_factory.py::TestToolSelection::test_selects_permitted_tools PASSED [ 13%]
+tests/unit/test_agent_factory.py::TestToolSelection::test_no_tools_when_none_configured PASSED [ 14%]
+tests/unit/test_agent_factory.py::TestToolSelection::test_all_valid_tools_can_be_selected PASSED [ 14%]
+tests/unit/test_agent_factory.py::TestToolSelection::test_excludes_unknown_tools PASSED [ 14%]
+tests/unit/test_agent_factory.py::TestFaissToolInclusion::test_adds_query_faiss_when_faiss_indexes_present PASSED [ 14%]
+tests/unit/test_agent_factory.py::TestFaissToolInclusion::test_no_query_faiss_when_no_faiss_indexes PASSED [ 14%]
+tests/unit/test_agent_factory.py::TestFaissToolInclusion::test_no_duplicate_query_faiss_if_already_in_tools PASSED [ 15%]
+tests/unit/test_agent_factory.py::TestFaissToolInclusion::test_query_faiss_added_even_with_no_other_tools PASSED [ 15%]
+tests/unit/test_agent_factory.py::TestDeniedToolLogging::test_logs_warning_for_unknown_tool PASSED [ 15%]
+tests/unit/test_agent_factory.py::TestDeniedToolLogging::test_no_warning_for_valid_tools PASSED [ 15%]
+tests/unit/test_agent_factory.py::TestDeniedToolLogging::test_logs_multiple_denied_tools PASSED [ 15%]
+tests/unit/test_agent_factory.py::TestSystemPrompt::test_uses_system_prompt_when_provided PASSED [ 15%]
+tests/unit/test_agent_factory.py::TestSystemPrompt::test_falls_back_to_description PASSED [ 16%]
+tests/unit/test_agent_factory.py::TestAgentName::test_agent_name_matches_config PASSED [ 16%]
+tests/unit/test_agent_factory.py::TestStrandsAgentIntegration::test_creates_strands_agent_when_available PASSED [ 16%]
+tests/unit/test_agent_factory.py::TestAgentSpecFallback::test_returns_agent_spec_when_strands_unavailable PASSED [ 16%]
+tests/unit/test_auth_middleware.py::TestLogin::test_login_valid_admin PASSED [ 16%]
+tests/unit/test_auth_middleware.py::TestLogin::test_login_valid_user PASSED [ 17%]
+tests/unit/test_auth_middleware.py::TestLogin::test_login_invalid_credentials PASSED [ 17%]
+tests/unit/test_auth_middleware.py::TestLogin::test_login_unknown_user PASSED [ 17%]
+tests/unit/test_auth_middleware.py::TestMe::test_me_authenticated PASSED [ 17%]
+tests/unit/test_auth_middleware.py::TestMe::test_me_no_token PASSED      [ 17%]
+tests/unit/test_auth_middleware.py::TestMe::test_me_invalid_token PASSED [ 18%]
+tests/unit/test_auth_middleware.py::TestMiddleware::test_unauthenticated_request_returns_401 PASSED [ 18%]
+tests/unit/test_auth_middleware.py::TestMiddleware::test_expired_token_returns_401 PASSED [ 18%]
+tests/unit/test_auth_service.py::TestAuthenticate::test_valid_admin_credentials PASSED [ 18%]
+tests/unit/test_auth_service.py::TestAuthenticate::test_valid_user_credentials PASSED [ 18%]
+tests/unit/test_auth_service.py::TestAuthenticate::test_unknown_username_raises PASSED [ 18%]
+tests/unit/test_auth_service.py::TestAuthenticate::test_wrong_password_raises PASSED [ 19%]
+tests/unit/test_auth_service.py::TestAuthenticate::test_jwt_payload_contains_expected_claims PASSED [ 19%]
+tests/unit/test_auth_service.py::TestValidateToken::test_valid_token_returns_user_context PASSED [ 19%]
+tests/unit/test_auth_service.py::TestValidateToken::test_expired_token_raises PASSED [ 19%]
+tests/unit/test_auth_service.py::TestValidateToken::test_invalid_token_raises PASSED [ 19%]
+tests/unit/test_auth_service.py::TestValidateToken::test_wrong_secret_raises PASSED [ 20%]
+tests/unit/test_auth_service.py::TestHasRole::test_user_with_role PASSED [ 20%]
+tests/unit/test_auth_service.py::TestHasRole::test_user_without_role PASSED [ 20%]
+tests/unit/test_auth_service.py::TestHasRole::test_empty_roles PASSED    [ 20%]
+tests/unit/test_chat_api.py::TestConversationContext::test_get_or_create_creates_new PASSED [ 20%]
+tests/unit/test_chat_api.py::TestConversationContext::test_get_or_create_returns_existing PASSED [ 21%]
+tests/unit/test_chat_api.py::TestConversationContext::test_get_conversations_returns_store PASSED [ 21%]
+tests/unit/test_chat_api.py::TestConversationContext::test_separate_sessions_have_separate_contexts PASSED [ 21%]
+tests/unit/test_chat_api.py::TestWsChat::test_send_message_receives_tokens_and_response PASSED [ 21%]
+tests/unit/test_chat_api.py::TestWsChat::test_session_id_in_all_responses PASSED [ 21%]
+tests/unit/test_chat_api.py::TestWsChat::test_conversation_context_maintained PASSED [ 21%]
+tests/unit/test_chat_api.py::TestWsChat::test_unknown_message_type_returns_error PASSED [ 22%]
+tests/unit/test_chat_api.py::TestWsChat::test_agent_error_returns_error_event PASSED [ 22%]
+tests/unit/test_chat_api.py::TestWsChat::test_agent_error_records_user_message_in_context PASSED [ 22%]
+tests/unit/test_chat_api.py::TestWsChat::test_tokens_concatenate_to_full_response PASSED [ 22%]
+tests/unit/test_chat_api.py::TestWsChat::test_multiple_sessions_independent PASSED [ 22%]
+tests/unit/test_chat_api.py::TestDefaultChatAgent::test_default_agent_echoes_last_message PASSED [ 23%]
+tests/unit/test_chat_api.py::TestDefaultChatAgent::test_default_agent_empty_messages PASSED [ 23%]
+tests/unit/test_chat_api.py::TestBuildRetrievalRouter::test_returns_none_when_no_backends PASSED [ 23%]
+tests/unit/test_chat_api.py::TestBuildRetrievalRouter::test_returns_none_when_all_backends_fail_to_create PASSED [ 23%]
+tests/unit/test_chat_api.py::TestBuildRetrievalRouter::test_returns_router_with_valid_sqlite_backend PASSED [ 23%]
+tests/unit/test_chat_api.py::TestBuildRetrievalRouter::test_passes_acl_to_router PASSED [ 23%]
+tests/unit/test_chat_api.py::TestCreateRetrievalBackend::test_unknown_backend_type_returns_none PASSED [ 24%]
+tests/unit/test_chat_api.py::TestCreateRetrievalBackend::test_sqlite_missing_db_path_returns_none PASSED [ 24%]
+tests/unit/test_chat_api.py::TestCreateRetrievalBackend::test_sqlite_missing_fts_table_returns_none PASSED [ 24%]
+tests/unit/test_chat_api.py::TestCreateRetrievalBackend::test_sqlite_valid_config_creates_backend PASSED [ 24%]
+tests/unit/test_chat_api.py::TestCreateRetrievalBackend::test_bedrock_missing_index_path_returns_none PASSED [ 24%]
+tests/unit/test_chat_api.py::TestCreateRetrievalBackend::test_bedrock_missing_embedding_model_returns_none PASSED [ 25%]
+tests/unit/test_chat_api.py::TestRetrievalIntegrationInChat::test_no_retrieval_when_no_router PASSED [ 25%]
+tests/unit/test_chat_api.py::TestRetrievalIntegrationInChat::test_retrieval_injects_context_into_agent_messages PASSED [ 25%]
+tests/unit/test_chat_api.py::TestRetrievalIntegrationInChat::test_retrieval_skipped_when_no_results PASSED [ 25%]
+tests/unit/test_chat_api.py::TestRetrievalIntegrationInChat::test_retrieval_failure_does_not_break_chat PASSED [ 25%]
+tests/unit/test_chat_api.py::TestRetrievalIntegrationInChat::test_context_stores_router_and_system_prompt PASSED [ 26%]
+tests/unit/test_chat_api.py::TestEscalationIntegration::test_no_escalation_for_simple_message PASSED [ 26%]
+tests/unit/test_chat_api.py::TestEscalationIntegration::test_escalation_routes_to_fallback_agent PASSED [ 26%]
+tests/unit/test_chat_api.py::TestEscalationIntegration::test_fallback_used_flag_not_present_when_primary_handles PASSED [ 26%]
+tests/unit/test_chat_api.py::TestEscalationIntegration::test_primary_error_retries_with_fallback PASSED [ 26%]
+tests/unit/test_chat_api.py::TestEscalationIntegration::test_empty_response_retries_with_fallback PASSED [ 26%]
+tests/unit/test_chat_api.py::TestEscalationIntegration::test_both_models_fail_returns_structured_error PASSED [ 27%]
+tests/unit/test_chat_api.py::TestEscalationIntegration::test_escalation_skipped_for_test_agent_override PASSED [ 27%]
+tests/unit/test_chat_api.py::TestEscalationIntegration::test_context_stores_escalation_detector_and_fallback_agent PASSED [ 27%]
+tests/unit/test_chat_api.py::TestEscalationIntegration::test_primary_error_no_fallback_returns_error PASSED [ 27%]
+tests/unit/test_chat_api.py::TestPersonalitySwitching::test_switch_preserves_conversation_history PASSED [ 27%]
+tests/unit/test_chat_api.py::TestPersonalitySwitching::test_switch_sends_personality_changed_event PASSED [ 28%]
+tests/unit/test_chat_api.py::TestPersonalitySwitching::test_switch_to_unknown_personality_returns_error PASSED [ 28%]
+tests/unit/test_chat_api.py::TestPersonalitySwitching::test_switch_unknown_personality_keeps_current PASSED [ 28%]
+tests/unit/test_chat_api.py::TestPersonalitySwitching::test_switch_updates_personality_id_in_context PASSED [ 28%]
+tests/unit/test_chat_api.py::TestPersonalitySwitching::test_no_switch_when_same_personality PASSED [ 28%]
+tests/unit/test_chat_api.py::TestPersonalitySwitching::test_switch_reinitializes_agent PASSED [ 28%]
+tests/unit/test_chat_provider_service.py::TestChatProviderServiceBedrockStatus::test_auto_refreshes_expired_sso_token_before_reporting_signed_out PASSED [ 29%]
+tests/unit/test_chat_provider_service.py::TestChatProviderServiceBedrockStatus::test_does_not_auto_refresh_for_non_expired_token_failure PASSED [ 29%]
+tests/unit/test_chat_provider_service.py::TestChatProviderServiceBedrockStatus::test_sign_in_checks_status_without_triggering_a_second_refresh PASSED [ 29%]
+tests/unit/test_config_api.py::TestRBAC::test_list_no_token_returns_401 PASSED [ 29%]
+tests/unit/test_config_api.py::TestRBAC::test_list_user_token_returns_403 PASSED [ 29%]
+tests/unit/test_config_api.py::TestRBAC::test_create_user_token_returns_403 PASSED [ 30%]
+tests/unit/test_config_api.py::TestRBAC::test_update_user_token_returns_403 PASSED [ 30%]
+tests/unit/test_config_api.py::TestRBAC::test_delete_user_token_returns_403 PASSED [ 30%]
+tests/unit/test_config_api.py::TestRBAC::test_get_user_token_returns_403 PASSED [ 30%]
+tests/unit/test_config_api.py::TestListPipelines::test_list_empty PASSED [ 30%]
+tests/unit/test_config_api.py::TestListPipelines::test_list_after_create PASSED [ 31%]
+tests/unit/test_config_api.py::TestGetPipeline::test_get_existing PASSED [ 31%]
+tests/unit/test_config_api.py::TestGetPipeline::test_get_not_found PASSED [ 31%]
+tests/unit/test_config_api.py::TestCreatePipeline::test_create_json PASSED [ 31%]
+tests/unit/test_config_api.py::TestCreatePipeline::test_create_yaml PASSED [ 31%]
+tests/unit/test_config_api.py::TestCreatePipeline::test_create_duplicate_returns_409 PASSED [ 31%]
+tests/unit/test_config_api.py::TestCreatePipeline::test_create_invalid_json_returns_422 PASSED [ 32%]
+tests/unit/test_config_api.py::TestCreatePipeline::test_create_validation_error_returns_422 PASSED [ 32%]
+tests/unit/test_config_api.py::TestCreatePipeline::test_create_unsupported_format_returns_400 PASSED [ 32%]
+tests/unit/test_config_api.py::TestUpdatePipeline::test_update_existing PASSED [ 32%]
+tests/unit/test_config_api.py::TestUpdatePipeline::test_update_not_found PASSED [ 32%]
+tests/unit/test_config_api.py::TestUpdatePipeline::test_update_with_name_change PASSED [ 33%]
+tests/unit/test_config_api.py::TestUpdatePipeline::test_update_invalid_config_returns_422 PASSED [ 33%]
+tests/unit/test_config_api.py::TestDeletePipeline::test_delete_existing PASSED [ 33%]
+tests/unit/test_config_api.py::TestDeletePipeline::test_delete_not_found PASSED [ 33%]
+tests/unit/test_config_parser.py::TestParseYAML::test_minimal_yaml PASSED [ 33%]
+tests/unit/test_config_parser.py::TestParseYAML::test_full_yaml PASSED   [ 34%]
+tests/unit/test_config_parser.py::TestParseYAML::test_yaml_syntax_error_reports_location PASSED [ 34%]
+tests/unit/test_config_parser.py::TestParseYAML::test_yaml_non_mapping_top_level PASSED [ 34%]
+tests/unit/test_config_parser.py::TestParseJSON::test_minimal_json PASSED [ 34%]
+tests/unit/test_config_parser.py::TestParseJSON::test_full_json PASSED   [ 34%]
+tests/unit/test_config_parser.py::TestParseJSON::test_json_syntax_error_reports_location PASSED [ 34%]
+tests/unit/test_config_parser.py::TestParseJSON::test_json_non_object_top_level PASSED [ 35%]
+tests/unit/test_config_parser.py::TestParseErrors::test_missing_name PASSED [ 35%]
+tests/unit/test_config_parser.py::TestParseErrors::test_missing_agents PASSED [ 35%]
+tests/unit/test_config_parser.py::TestParseErrors::test_missing_output PASSED [ 35%]
+tests/unit/test_config_parser.py::TestParseErrors::test_agents_not_a_list PASSED [ 35%]
+tests/unit/test_config_parser.py::TestParseErrors::test_agent_missing_provider_config PASSED [ 36%]
+tests/unit/test_config_parser.py::TestParseErrors::test_agent_missing_description PASSED [ 36%]
+tests/unit/test_config_parser.py::TestParseErrors::test_provider_config_missing_provider_type PASSED [ 36%]
+tests/unit/test_config_parser.py::TestParseErrors::test_output_missing_template PASSED [ 36%]
+tests/unit/test_config_parser.py::TestParseErrors::test_output_formats_not_a_list PASSED [ 36%]
+tests/unit/test_config_parser.py::TestParseErrors::test_oauth_config_missing_fields PASSED [ 36%]
+tests/unit/test_config_parser.py::TestParseErrors::test_error_has_location PASSED [ 37%]
+tests/unit/test_config_parser.py::TestSerialize::test_serialize_yaml PASSED [ 37%]
+tests/unit/test_config_parser.py::TestSerialize::test_serialize_json PASSED [ 37%]
+tests/unit/test_config_parser.py::TestSerialize::test_serialize_strips_none PASSED [ 37%]
+tests/unit/test_config_parser.py::TestSerialize::test_round_trip_yaml PASSED [ 37%]
+tests/unit/test_config_parser.py::TestSerialize::test_round_trip_json PASSED [ 38%]
+tests/unit/test_config_parser.py::TestUnsupportedFormat::test_parse_unsupported_format PASSED [ 38%]
+tests/unit/test_config_parser.py::TestUnsupportedFormat::test_serialize_unsupported_format PASSED [ 38%]
+tests/unit/test_config_validator.py::TestValidConfig::test_minimal_valid_config PASSED [ 38%]
+tests/unit/test_config_validator.py::TestValidConfig::test_multiple_agents PASSED [ 38%]
+tests/unit/test_config_validator.py::TestValidConfig::test_all_valid_tools PASSED [ 39%]
+tests/unit/test_config_validator.py::TestValidConfig::test_all_valid_output_formats FAILED [ 39%]
+tests/unit/test_config_validator.py::TestValidConfig::test_valid_faiss_indexes PASSED [ 39%]
+tests/unit/test_config_validator.py::TestAgentValidation::test_no_agents PASSED [ 39%]
+tests/unit/test_config_validator.py::TestAgentValidation::test_empty_agent_name PASSED [ 39%]
+tests/unit/test_config_validator.py::TestAgentValidation::test_whitespace_agent_name PASSED [ 39%]
+tests/unit/test_config_validator.py::TestAgentValidation::test_duplicate_agent_names PASSED [ 40%]
+tests/unit/test_config_validator.py::TestAgentValidation::test_invalid_provider_type PASSED [ 40%]
+tests/unit/test_config_validator.py::TestProviderRequirements::test_github_copilot_requires_oauth PASSED [ 40%]
+tests/unit/test_config_validator.py::TestProviderRequirements::test_github_copilot_with_oauth_is_valid PASSED [ 40%]
+tests/unit/test_config_validator.py::TestProviderRequirements::test_bedrock_requires_region FAILED [ 40%]
+tests/unit/test_config_validator.py::TestProviderRequirements::test_bedrock_with_region_is_valid PASSED [ 41%]
+tests/unit/test_config_validator.py::TestToolAndFaissValidation::test_invalid_tool_name PASSED [ 41%]
+tests/unit/test_config_validator.py::TestToolAndFaissValidation::test_faiss_index_out_of_range_negative PASSED [ 41%]
+tests/unit/test_config_validator.py::TestToolAndFaissValidation::test_faiss_index_out_of_range_high PASSED [ 41%]
+tests/unit/test_config_validator.py::TestOutputValidation::test_empty_formats PASSED [ 41%]
+tests/unit/test_config_validator.py::TestOutputValidation::test_invalid_output_format PASSED [ 42%]
+tests/unit/test_config_validator.py::TestMultipleErrors::test_reports_all_errors PASSED [ 42%]
+tests/unit/test_encryption_service.py::TestFernetEncryption::test_encrypt_decrypt_round_trip PASSED [ 42%]
+tests/unit/test_encryption_service.py::TestFernetEncryption::test_encrypt_empty_data PASSED [ 42%]
+tests/unit/test_encryption_service.py::TestAES256GCMEncryption::test_encrypt_decrypt_round_trip PASSED [ 42%]
+tests/unit/test_encryption_service.py::TestAES256GCMEncryption::test_nonce_prepended PASSED [ 42%]
+tests/unit/test_encryption_service.py::TestAES256GCMEncryption::test_encrypt_empty_data PASSED [ 43%]
+tests/unit/test_encryption_service.py::TestDisabledEncryption::test_encrypt_returns_original_when_disabled PASSED [ 43%]
+tests/unit/test_encryption_service.py::TestDisabledEncryption::test_decrypt_returns_original_when_disabled PASSED [ 43%]
+tests/unit/test_encryption_service.py::TestGetConfig::test_returns_disabled_when_no_key PASSED [ 43%]
+tests/unit/test_encryption_service.py::TestGetConfig::test_detects_fernet_algorithm PASSED [ 43%]
+tests/unit/test_encryption_service.py::TestGetConfig::test_detects_aes_algorithm PASSED [ 44%]
+tests/unit/test_encryption_service.py::TestGetConfig::test_each_target_independent PASSED [ 44%]
+tests/unit/test_encryption_service.py::TestGetConfig::test_invalid_target_raises PASSED [ 44%]
+tests/unit/test_encryption_service.py::TestValidation::test_unsupported_algorithm_raises PASSED [ 44%]
+tests/unit/test_encryption_service.py::TestValidation::test_missing_key_raises PASSED [ 44%]
+tests/unit/test_encryption_service.py::TestValidation::test_invalid_target_in_config_raises PASSED [ 44%]
+tests/unit/test_environment_injector.py::test_empty_data_sources_returns_prompt_unchanged PASSED [ 45%]
+tests/unit/test_environment_injector.py::test_load_txt_file PASSED       [ 45%]
+tests/unit/test_environment_injector.py::test_load_json_file PASSED      [ 45%]
+tests/unit/test_environment_injector.py::test_load_yaml_file PASSED      [ 45%]
+tests/unit/test_environment_injector.py::test_load_yml_extension PASSED  [ 45%]
+tests/unit/test_environment_injector.py::test_load_env_var PASSED        [ 46%]
+tests/unit/test_environment_injector.py::test_missing_file_logs_warning_and_continues PASSED [ 46%]
+tests/unit/test_environment_injector.py::test_unparseable_json_logs_warning_and_continues PASSED [ 46%]
+tests/unit/test_environment_injector.py::test_unparseable_yaml_logs_warning_and_continues PASSED [ 46%]
+tests/unit/test_environment_injector.py::test_missing_env_var_logs_warning_and_continues PASSED [ 46%]
+tests/unit/test_environment_injector.py::test_multiple_sources_mixed PASSED [ 47%]
+tests/unit/test_environment_injector.py::test_context_block_separator PASSED [ 47%]
+tests/unit/test_execution_logger.py::TestSessionLifecycle::test_log_session_start_creates_file PASSED [ 47%]
+tests/unit/test_execution_logger.py::TestSessionLifecycle::test_log_session_end_records_outputs PASSED [ 47%]
+tests/unit/test_execution_logger.py::TestSessionLifecycle::test_full_lifecycle PASSED [ 47%]
+tests/unit/test_execution_logger.py::TestStepLogging::test_log_step_records_all_fields PASSED [ 47%]
+tests/unit/test_execution_logger.py::TestStepLogging::test_log_step_with_error PASSED [ 48%]
+tests/unit/test_execution_logger.py::TestStepLogging::test_multiple_steps_appended PASSED [ 48%]
+tests/unit/test_execution_logger.py::TestTimestamps::test_timestamps_have_timezone PASSED [ 48%]
+tests/unit/test_execution_logger.py::TestJSONValidity::test_session_file_is_valid_json PASSED [ 48%]
+tests/unit/test_execution_logger.py::TestGetSessionLog::test_round_trip_preserves_data PASSED [ 48%]
+tests/unit/test_execution_logger.py::TestGetSessionLog::test_empty_session_returns_defaults PASSED [ 49%]
+tests/unit/test_execution_logger.py::TestListSessions::test_list_returns_all_sessions PASSED [ 49%]
+tests/unit/test_execution_logger.py::TestListSessions::test_list_with_user_filter PASSED [ 49%]
+tests/unit/test_execution_logger.py::TestListSessions::test_list_empty_dir PASSED [ 49%]
+tests/unit/test_execution_logger.py::TestEncryptionAtRest::test_encrypted_log_is_not_readable_json PASSED [ 49%]
+tests/unit/test_execution_logger.py::TestEncryptionAtRest::test_encrypted_log_round_trip PASSED [ 50%]
+tests/unit/test_execution_logger.py::TestEncryptionAtRest::test_unencrypted_log_is_readable_json PASSED [ 50%]
+tests/unit/test_execution_logger.py::TestInputOutputRecording::test_input_files_recorded PASSED [ 50%]
+tests/unit/test_execution_logger.py::TestInputOutputRecording::test_output_documents_recorded PASSED [ 50%]
+tests/unit/test_execution_logger.py::TestAuditFields::test_user_identity_recorded PASSED [ 50%]
+tests/unit/test_execution_logger.py::TestAuditFields::test_llm_provider_model_per_step PASSED [ 50%]
+tests/unit/test_faiss_manager.py::TestLoadIndexes::test_load_single_index PASSED [ 51%]
+tests/unit/test_faiss_manager.py::TestLoadIndexes::test_load_up_to_four_indexes PASSED [ 51%]
+tests/unit/test_faiss_manager.py::TestLoadIndexes::test_reject_more_than_four_indexes PASSED [ 51%]
+tests/unit/test_faiss_manager.py::TestLoadIndexes::test_error_when_index_file_unreadable PASSED [ 51%]
+tests/unit/test_faiss_manager.py::TestLoadIndexes::test_error_when_embedding_model_unavailable PASSED [ 51%]
+tests/unit/test_faiss_manager.py::TestLoadIndexesMissingLibs::test_error_when_faiss_not_installed PASSED [ 52%]
+tests/unit/test_faiss_manager.py::TestLoadIndexesMissingLibs::test_error_when_sentence_transformers_not_installed PASSED [ 52%]
+tests/unit/test_faiss_manager.py::TestQuery::test_query_returns_results_ranked_by_score PASSED [ 52%]
+tests/unit/test_faiss_manager.py::TestQuery::test_query_unloaded_index_raises PASSED [ 52%]
+tests/unit/test_faiss_manager.py::TestQuery::test_query_empty_index_returns_empty PASSED [ 52%]
+tests/unit/test_faiss_manager.py::TestQuery::test_query_top_k_clamped_to_index_size PASSED [ 52%]
+tests/unit/test_faiss_manager.py::TestGetLoadedIndexes::test_empty_initially PASSED [ 53%]
+tests/unit/test_faiss_manager.py::TestGetLoadedIndexes::test_returns_sorted_ids PASSED [ 53%]
+tests/unit/test_faiss_manager.py::TestErrorReporting::test_unavailable_index_error_identifies_index PASSED [ 53%]
+tests/unit/test_faiss_manager.py::TestErrorReporting::test_load_failure_identifies_index PASSED [ 53%]
+tests/unit/test_file_ingestion.py::TestValidateFormat::test_supported_formats_accepted PASSED [ 53%]
+tests/unit/test_file_ingestion.py::TestValidateFormat::test_uppercase_extension_normalised PASSED [ 54%]
+tests/unit/test_file_ingestion.py::TestValidateFormat::test_unsupported_format_rejected PASSED [ 54%]
+tests/unit/test_file_ingestion.py::TestValidateFormat::test_no_extension_rejected PASSED [ 54%]
+tests/unit/test_file_ingestion.py::TestValidateFormat::test_empty_filename_rejected PASSED [ 54%]
+tests/unit/test_file_ingestion.py::TestUpload::test_upload_valid_files PASSED [ 54%]
+tests/unit/test_file_ingestion.py::TestUpload::test_upload_unsupported_format_raises PASSED [ 55%]
+tests/unit/test_file_ingestion.py::TestUpload::test_upload_generates_unique_ids PASSED [ 55%]
+tests/unit/test_file_ingestion.py::TestUpload::test_upload_empty_list PASSED [ 55%]
+tests/unit/test_file_ingestion.py::TestDecryptIfNeeded::test_no_decryption_when_disabled PASSED [ 55%]
+tests/unit/test_file_ingestion.py::TestDecryptIfNeeded::test_decryption_delegates_to_encryption_service PASSED [ 55%]
+tests/unit/test_github_copilot_model.py::TestConstruction::test_stores_oauth_config_and_model_id PASSED [ 55%]
+tests/unit/test_github_copilot_model.py::TestConstruction::test_accepts_none_oauth_config PASSED [ 56%]
+tests/unit/test_github_copilot_model.py::TestConstruction::test_default_config_values PASSED [ 56%]
+tests/unit/test_github_copilot_model.py::TestConfig::test_get_config_returns_copy PASSED [ 56%]
+tests/unit/test_github_copilot_model.py::TestConfig::test_update_config_updates_temperature PASSED [ 56%]
+tests/unit/test_github_copilot_model.py::TestConfig::test_update_config_updates_max_tokens PASSED [ 56%]
+tests/unit/test_github_copilot_model.py::TestConfig::test_update_config_updates_model_id PASSED [ 57%]
+tests/unit/test_github_copilot_model.py::TestConfig::test_update_config_multiple_keys PASSED [ 57%]
+tests/unit/test_github_copilot_model.py::TestTokenAcquisition::test_acquire_token_raises_without_oauth_config PASSED [ 57%]
+tests/unit/test_github_copilot_model.py::TestTokenAcquisition::test_acquire_token_success PASSED [ 57%]
+tests/unit/test_github_copilot_model.py::TestTokenAcquisition::test_acquire_token_missing_access_token_field PASSED [ 57%]
+tests/unit/test_github_copilot_model.py::TestTokenAcquisition::test_acquire_token_network_error PASSED [ 57%]
+tests/unit/test_github_copilot_model.py::TestTokenAcquisition::test_ensure_token_caches PASSED [ 58%]
+tests/unit/test_github_copilot_model.py::TestTokenAcquisition::test_invalidate_token_clears_cache PASSED [ 58%]
+tests/unit/test_github_copilot_model.py::TestStream::test_stream_yields_parsed_chunks PASSED [ 58%]
+tests/unit/test_github_copilot_model.py::TestStream::test_stream_acquires_token_if_missing PASSED [ 58%]
+tests/unit/test_github_copilot_model.py::TestStream::test_stream_network_error_invalidates_token PASSED [ 58%]
+tests/unit/test_github_copilot_model.py::TestStream::test_stream_skips_empty_and_non_data_lines PASSED [ 59%]
+tests/unit/test_github_copilot_model.py::TestModelFactoryIntegration::test_model_factory_creates_github_copilot_model PASSED [ 59%]
+tests/unit/test_github_copilot_model.py::TestModelFactoryIntegration::test_model_factory_import_path PASSED [ 59%]
+tests/unit/test_graph_factory.py::TestBuildGraph::test_builds_fallback_graph_when_strands_unavailable PASSED [ 59%]
+tests/unit/test_graph_factory.py::TestBuildGraph::test_fallback_graph_has_correct_agent_count PASSED [ 59%]
+tests/unit/test_graph_factory.py::TestBuildGraph::test_fallback_graph_preserves_agent_order PASSED [ 60%]
+tests/unit/test_graph_factory.py::TestBuildGraph::test_raises_on_empty_agents PASSED [ 60%]
+tests/unit/test_graph_factory.py::TestBuildGraph::test_single_agent_pipeline PASSED [ 60%]
+tests/unit/test_graph_factory.py::TestBuildGraph::test_timeout_passed_to_fallback_graph PASSED [ 60%]
+tests/unit/test_graph_factory.py::TestBuildGraph::test_shared_state_passed_to_fallback_graph PASSED [ 60%]
+tests/unit/test_graph_factory.py::TestFallbackExecute::test_single_agent_returns_output PASSED [ 60%]
+tests/unit/test_graph_factory.py::TestFallbackExecute::test_sequential_chaining PASSED [ 61%]
+tests/unit/test_graph_factory.py::TestFallbackExecute::test_three_agent_chain PASSED [ 61%]
+tests/unit/test_graph_factory.py::TestFallbackExecute::test_failure_halts_execution PASSED [ 61%]
+tests/unit/test_graph_factory.py::TestFallbackExecute::test_first_agent_failure PASSED [ 61%]
+tests/unit/test_graph_factory.py::TestFallbackExecute::test_execution_time_is_positive PASSED [ 61%]
+tests/unit/test_graph_factory.py::TestFallbackStreamExecute::test_stream_sends_events_to_websocket PASSED [ 62%]
+tests/unit/test_graph_factory.py::TestFallbackStreamExecute::test_stream_multi_agent_events PASSED [ 62%]
+tests/unit/test_graph_factory.py::TestFallbackStreamExecute::test_stream_failure_sends_agent_fail PASSED [ 62%]
+tests/unit/test_graph_factory.py::TestFallbackStreamExecute::test_stream_without_websocket PASSED [ 62%]
+tests/unit/test_graph_factory.py::TestFallbackStreamExecute::test_stream_agent_ids_match PASSED [ 62%]
+tests/unit/test_graph_factory.py::TestFallbackStreamEvents::test_yields_correct_event_sequence PASSED [ 63%]
+tests/unit/test_graph_factory.py::TestFallbackStreamEvents::test_yields_fail_event_on_error PASSED [ 63%]
+tests/unit/test_graph_factory.py::TestGraphFactoryExecute::test_execute_returns_completed PASSED [ 63%]
+tests/unit/test_graph_factory.py::TestGraphFactoryExecute::test_execute_chains_agents PASSED [ 63%]
+tests/unit/test_graph_factory.py::TestGraphFactoryStreamExecute::test_stream_execute_sends_events PASSED [ 63%]
+tests/unit/test_graph_factory.py::TestGraphFactoryStreamExecute::test_stream_execute_without_websocket PASSED [ 63%]
+tests/unit/test_graph_factory.py::TestPipelineResult::test_default_values PASSED [ 64%]
+tests/unit/test_graph_factory.py::TestPipelineResult::test_failed_result PASSED [ 64%]
+tests/unit/test_graph_factory.py::TestAgentCountFlexibility::test_single_agent PASSED [ 64%]
+tests/unit/test_graph_factory.py::TestAgentCountFlexibility::test_five_agents PASSED [ 64%]
+tests/unit/test_graph_factory.py::TestAgentCountFlexibility::test_ten_agents PASSED [ 64%]
+tests/unit/test_memory_manager.py::TestPersistAndRestore::test_persist_then_restore_single_message PASSED [ 65%]
+tests/unit/test_memory_manager.py::TestPersistAndRestore::test_persist_then_restore_multiple_messages PASSED [ 65%]
+tests/unit/test_memory_manager.py::TestPersistAndRestore::test_restore_empty_session PASSED [ 65%]
+tests/unit/test_memory_manager.py::TestPersistAndRestore::test_separate_sessions_are_isolated PASSED [ 65%]
+tests/unit/test_memory_manager.py::TestPersistAndRestore::test_persist_updates_metadata PASSED [ 65%]
+tests/unit/test_memory_manager.py::TestPersistAndRestore::test_json_file_created_at_correct_path PASSED [ 65%]
+tests/unit/test_memory_manager.py::TestMaybeCondense::test_no_condense_below_turn_threshold PASSED [ 66%]
+tests/unit/test_memory_manager.py::TestMaybeCondense::test_condense_at_turn_threshold PASSED [ 66%]
+tests/unit/test_memory_manager.py::TestMaybeCondense::test_condense_at_token_threshold PASSED [ 66%]
+tests/unit/test_memory_manager.py::TestMaybeCondense::test_condense_preserves_recent_messages PASSED [ 66%]
+tests/unit/test_memory_manager.py::TestMaybeCondense::test_condense_summary_contains_older_content PASSED [ 66%]
+tests/unit/test_memory_manager.py::TestMaybeCondense::test_condense_updates_metadata PASSED [ 67%]
+tests/unit/test_memory_manager.py::TestMaybeCondense::test_condense_nonexistent_session_returns_false PASSED [ 67%]
+tests/unit/test_memory_manager.py::TestCreateConversationManager::test_returns_conversation_manager_or_none PASSED [ 67%]
+tests/unit/test_memory_manager.py::TestStorageFormat::test_session_file_has_expected_structure PASSED [ 67%]
+tests/unit/test_memory_manager.py::TestStorageFormat::test_storage_dir_created_automatically PASSED [ 67%]
+tests/unit/test_metrics_collector.py::TestRecord::test_single_record PASSED [ 68%]
+tests/unit/test_metrics_collector.py::TestRecord::test_multiple_records_same_agent_accumulate PASSED [ 68%]
+tests/unit/test_metrics_collector.py::TestRecord::test_multiple_agents_tracked_separately PASSED [ 68%]
+tests/unit/test_metrics_collector.py::TestRecord::test_multiple_sessions_isolated PASSED [ 68%]
+tests/unit/test_metrics_collector.py::TestRecordFromNodeResult::test_extracts_usage_from_node_result PASSED [ 68%]
+tests/unit/test_metrics_collector.py::TestRecordFromNodeResult::test_missing_usage_defaults_to_zero PASSED [ 68%]
+tests/unit/test_metrics_collector.py::TestRecordFromNodeResult::test_missing_agent_id_defaults_to_unknown PASSED [ 69%]
+tests/unit/test_metrics_collector.py::TestGetSessionMetrics::test_returns_session_metrics_type PASSED [ 69%]
+tests/unit/test_metrics_collector.py::TestGetSessionMetrics::test_unknown_session_returns_empty PASSED [ 69%]
+tests/unit/test_metrics_collector.py::TestExportCsv::test_csv_header_and_rows PASSED [ 69%]
+tests/unit/test_metrics_collector.py::TestExportCsv::test_csv_empty_session PASSED [ 69%]
+tests/unit/test_metrics_collector.py::TestExportCsv::test_csv_values_match_recorded PASSED [ 70%]
+tests/unit/test_metrics_collector.py::TestMetricsEndpoints::test_get_session_metrics_json PASSED [ 70%]
+tests/unit/test_metrics_collector.py::TestMetricsEndpoints::test_get_session_metrics_empty PASSED [ 70%]
+tests/unit/test_metrics_collector.py::TestMetricsEndpoints::test_get_session_metrics_csv PASSED [ 70%]
+tests/unit/test_metrics_collector.py::TestMetricsEndpoints::test_csv_empty_session PASSED [ 70%]
+tests/unit/test_model_factory.py::TestGitHubCopilotModel::test_stores_config PASSED [ 71%]
+tests/unit/test_model_factory.py::TestGitHubCopilotModel::test_get_config PASSED [ 71%]
+tests/unit/test_model_factory.py::TestGitHubCopilotModel::test_uses_device_flow_helper_when_oauth_config_missing PASSED [ 71%]
+tests/unit/test_model_factory.py::TestGitHubCopilotModel::test_update_config_works PASSED [ 71%]
+tests/unit/test_model_factory.py::TestCreateModelGitHubCopilot::test_creates_github_copilot_model PASSED [ 71%]
+tests/unit/test_model_factory.py::TestCreateModelBedrock::test_creates_bedrock_model_when_sdk_available PASSED [ 71%]
+tests/unit/test_model_factory.py::TestCreateModelBedrock::test_uses_boto_session_without_region_name_when_profile_is_provided PASSED [ 72%]
+tests/unit/test_model_factory.py::TestCreateModelBedrock::test_prefers_inference_profile_id_when_provided PASSED [ 72%]
+tests/unit/test_model_factory.py::TestCreateModelBedrock::test_raises_when_bedrock_sdk_unavailable PASSED [ 72%]
+tests/unit/test_model_factory.py::TestCreateModelOpenAI::test_creates_openai_model_when_sdk_available PASSED [ 72%]
+tests/unit/test_model_factory.py::TestCreateModelOpenAI::test_creates_openai_model_without_endpoint PASSED [ 72%]
+tests/unit/test_model_factory.py::TestCreateModelOpenAI::test_raises_when_openai_sdk_unavailable PASSED [ 73%]
+tests/unit/test_model_factory.py::TestCreateModelUnsupported::test_raises_for_unsupported_provider PASSED [ 73%]
+tests/unit/test_model_factory.py::TestCheckProviderHealth::test_healthy_when_model_creates_successfully PASSED [ 73%]
+tests/unit/test_model_factory.py::TestCheckProviderHealth::test_unhealthy_when_model_creation_fails PASSED [ 73%]
+tests/unit/test_model_factory.py::TestCheckProviderHealth::test_unhealthy_for_unsupported_provider PASSED [ 73%]
+tests/unit/test_output_generator.py::TestRender::test_render_basic PASSED [ 73%]
+tests/unit/test_output_generator.py::TestRender::test_render_includes_all_metadata PASSED [ 74%]
+tests/unit/test_output_generator.py::TestRender::test_render_unknown_template_raises PASSED [ 74%]
+tests/unit/test_output_generator.py::TestRender::test_render_missing_jinja2_file_raises PASSED [ 74%]
+tests/unit/test_output_generator.py::TestRender::test_render_with_encryption PASSED [ 74%]
+tests/unit/test_output_generator.py::TestValidate::test_validate_no_rules PASSED [ 74%]
+tests/unit/test_output_generator.py::TestValidate::test_validate_required_field_present PASSED [ 75%]
+tests/unit/test_output_generator.py::TestValidate::test_validate_required_field_missing PASSED [ 75%]
+tests/unit/test_output_generator.py::TestValidate::test_validate_regex_match PASSED [ 75%]
+tests/unit/test_output_generator.py::TestValidate::test_validate_regex_no_match PASSED [ 75%]
+tests/unit/test_output_generator.py::TestValidate::test_validate_format_rule PASSED [ 75%]
+tests/unit/test_output_generator.py::TestValidate::test_validate_cross_reference_missing PASSED [ 76%]
+tests/unit/test_output_generator.py::TestValidate::test_validate_multiple_violations PASSED [ 76%]
+tests/unit/test_output_generator.py::TestExport::test_export_html PASSED [ 76%]
+tests/unit/test_output_generator.py::TestExport::test_export_markdown PASSED [ 76%]
+tests/unit/test_output_generator.py::TestExport::test_export_pdf_calls_weasyprint PASSED [ 76%]
+tests/unit/test_output_generator.py::TestExport::test_export_docx_calls_python_docx PASSED [ 76%]
+tests/unit/test_output_generator.py::TestExport::test_export_unsupported_format_raises PASSED [ 77%]
+tests/unit/test_personality_store.py::TestSerialize::test_produces_valid_json PASSED [ 77%]
+tests/unit/test_personality_store.py::TestSerialize::test_handles_nested_dataclasses PASSED [ 77%]
+tests/unit/test_personality_store.py::TestDeserialize::test_round_trip_minimal PASSED [ 77%]
+tests/unit/test_personality_store.py::TestDeserialize::test_round_trip_with_all_fields PASSED [ 77%]
+tests/unit/test_personality_store.py::TestDeserialize::test_unknown_fields_ignored PASSED [ 78%]
+tests/unit/test_personality_store.py::TestDeserialize::test_malformed_json_raises_descriptive_error PASSED [ 78%]
+tests/unit/test_personality_store.py::TestDeserialize::test_malformed_json_includes_location PASSED [ 78%]
+tests/unit/test_personality_store.py::TestDeserialize::test_non_object_json_raises PASSED [ 78%]
+tests/unit/test_personality_store.py::TestMigrateLegacyAccess::test_maps_faiss_indexes_to_retrieval_indexes PASSED [ 78%]
+tests/unit/test_personality_store.py::TestMigrateLegacyAccess::test_does_not_overwrite_existing_retrieval_indexes PASSED [ 78%]
+tests/unit/test_personality_store.py::TestMigrateLegacyAccess::test_no_access_key_returns_unchanged PASSED [ 79%]
+tests/unit/test_personality_store.py::TestMigrateLegacyAccess::test_no_faiss_indexes_returns_unchanged PASSED [ 79%]
+tests/unit/test_personality_store.py::TestParsePersonalityNewFields::test_backward_compatible_defaults PASSED [ 79%]
+tests/unit/test_personality_store.py::TestParsePersonalityNewFields::test_parses_retrieval_backends PASSED [ 79%]
+tests/unit/test_personality_store.py::TestParsePersonalityNewFields::test_parses_model_configs PASSED [ 79%]
+tests/unit/test_personality_store.py::TestParsePersonalityNewFields::test_parses_env_data_sources PASSED [ 80%]
+tests/unit/test_personality_store.py::TestFallbackModelDefault::test_fallback_defaults_to_primary_when_omitted PASSED [ 80%]
+tests/unit/test_personality_store.py::TestFallbackModelDefault::test_fallback_is_independent_copy PASSED [ 80%]
+tests/unit/test_personality_store.py::TestFallbackModelDefault::test_no_primary_means_no_fallback PASSED [ 80%]
+tests/unit/test_personality_store.py::TestFallbackModelDefault::test_explicit_fallback_not_overridden PASSED [ 80%]
+tests/unit/test_personality_store.py::TestValidateBackends::test_empty_backends_returns_no_errors PASSED [ 81%]
+tests/unit/test_personality_store.py::TestValidateBackends::test_sqlite_missing_db_path PASSED [ 81%]
+tests/unit/test_personality_store.py::TestValidateBackends::test_sqlite_db_not_found PASSED [ 81%]
+tests/unit/test_personality_store.py::TestValidateBackends::test_sqlite_db_exists_no_error PASSED [ 81%]
+tests/unit/test_personality_store.py::TestValidateBackends::test_faiss_index_not_found PASSED [ 81%]
+tests/unit/test_personality_store.py::TestValidateBackends::test_faiss_index_exists_no_error PASSED [ 81%]
+tests/unit/test_personality_store.py::TestValidateBackends::test_unknown_backend_type PASSED [ 82%]
+tests/unit/test_personality_store.py::TestLoadWithNewFields::test_load_personality_with_all_new_fields PASSED [ 82%]
+tests/unit/test_pipeline_api.py::TestSessionManagement::test_store_session_config PASSED [ 82%]
+tests/unit/test_pipeline_api.py::TestSessionManagement::test_get_sessions_returns_store PASSED [ 82%]
+tests/unit/test_pipeline_api.py::TestSessionManagement::test_store_session_files PASSED [ 82%]
+tests/unit/test_pipeline_api.py::TestExecutePipeline::test_returns_session_id_and_result PASSED [ 83%]
+tests/unit/test_pipeline_api.py::TestExecutePipeline::test_creates_session_in_store PASSED [ 83%]
+tests/unit/test_pipeline_api.py::TestExecutePipeline::test_calls_orchestrator_run_pipeline PASSED [ 83%]
+tests/unit/test_pipeline_api.py::TestExecutePipeline::test_failed_pipeline_returns_failed_status PASSED [ 83%]
+tests/unit/test_pipeline_api.py::TestExecutePipeline::test_exception_returns_500 PASSED [ 83%]
+tests/unit/test_pipeline_api.py::TestExecutePipeline::test_multi_agent_pipeline PASSED [ 84%]
+tests/unit/test_pipeline_api.py::TestWsExecution::test_ws_unknown_session_returns_error PASSED [ 84%]
+tests/unit/test_pipeline_api.py::TestWsExecution::test_ws_streams_pipeline_complete PASSED [ 84%]
+tests/unit/test_pipeline_api.py::TestWsExecution::test_ws_calls_stream_pipeline PASSED [ 84%]
+tests/unit/test_pipeline_api.py::TestWsExecution::test_ws_no_config_returns_error PASSED [ 84%]
+tests/unit/test_pipeline_api.py::TestWsExecution::test_ws_exception_sends_error_event PASSED [ 84%]
+tests/unit/test_pipeline_orchestrator.py::TestCreateSession::test_creates_session_with_uuid PASSED [ 85%]
+tests/unit/test_pipeline_orchestrator.py::TestCreateSession::test_session_has_utc_timestamp PASSED [ 85%]
+tests/unit/test_pipeline_orchestrator.py::TestRunPipeline::test_logs_session_start PASSED [ 85%]
+tests/unit/test_pipeline_orchestrator.py::TestRunPipeline::test_logs_session_end PASSED [ 85%]
+tests/unit/test_pipeline_orchestrator.py::TestRunPipeline::test_calls_graph_factory_execute PASSED [ 85%]
+tests/unit/test_pipeline_orchestrator.py::TestRunPipeline::test_returns_pipeline_result PASSED [ 86%]
+tests/unit/test_pipeline_orchestrator.py::TestRunPipeline::test_session_status_completed PASSED [ 86%]
+tests/unit/test_pipeline_orchestrator.py::TestRunPipeline::test_session_status_failed_on_pipeline_failure PASSED [ 86%]
+tests/unit/test_pipeline_orchestrator.py::TestRunPipeline::test_records_metrics_for_executed_agents PASSED [ 86%]
+tests/unit/test_pipeline_orchestrator.py::TestRunPipeline::test_logs_execution_steps PASSED [ 86%]
+tests/unit/test_pipeline_orchestrator.py::TestRunPipeline::test_generates_output_on_success PASSED [ 86%]
+tests/unit/test_pipeline_orchestrator.py::TestRunPipeline::test_no_output_on_failure PASSED [ 87%]
+tests/unit/test_pipeline_orchestrator.py::TestRunPipeline::test_no_output_when_template_empty PASSED [ 87%]
+tests/unit/test_pipeline_orchestrator.py::TestRunPipeline::test_exception_sets_session_failed PASSED [ 87%]
+tests/unit/test_pipeline_orchestrator.py::TestRunPipeline::test_decrypts_files_when_encryption_enabled PASSED [ 87%]
+tests/unit/test_pipeline_orchestrator.py::TestRunPipeline::test_formats_file_contents_as_input PASSED [ 87%]
+tests/unit/test_pipeline_orchestrator.py::TestStreamPipeline::test_calls_stream_execute PASSED [ 88%]
+tests/unit/test_pipeline_orchestrator.py::TestStreamPipeline::test_passes_websocket_to_graph_factory PASSED [ 88%]
+tests/unit/test_pipeline_orchestrator.py::TestStreamPipeline::test_logs_session_start_and_end PASSED [ 88%]
+tests/unit/test_pipeline_orchestrator.py::TestStreamPipeline::test_records_metrics PASSED [ 88%]
+tests/unit/test_pipeline_orchestrator.py::TestStreamPipeline::test_generates_output_on_success PASSED [ 88%]
+tests/unit/test_pipeline_orchestrator.py::TestStreamPipeline::test_exception_sets_session_failed PASSED [ 89%]
+tests/unit/test_pipeline_orchestrator.py::TestFormatInputs::test_single_file PASSED [ 89%]
+tests/unit/test_pipeline_orchestrator.py::TestFormatInputs::test_multiple_files PASSED [ 89%]
+tests/unit/test_pipeline_orchestrator.py::TestFormatInputs::test_empty_files FAILED [ 89%]
+tests/unit/test_pipeline_orchestrator.py::TestFormatInputs::test_latin1_fallback PASSED [ 89%]
+tests/unit/test_replay_engine.py::TestLoadExecution::test_returns_replay_session PASSED [ 89%]
+tests/unit/test_replay_engine.py::TestLoadExecution::test_steps_contain_full_data PASSED [ 90%]
+tests/unit/test_replay_engine.py::TestLoadExecution::test_timeline_entries PASSED [ 90%]
+tests/unit/test_replay_engine.py::TestLoadExecution::test_session_not_found_raises PASSED [ 90%]
+tests/unit/test_replay_engine.py::TestLoadExecution::test_steps_are_sequential PASSED [ 90%]
+tests/unit/test_replay_engine.py::TestGetStep::test_returns_correct_step PASSED [ 90%]
+tests/unit/test_replay_engine.py::TestGetStep::test_step_not_found_raises PASSED [ 91%]
+tests/unit/test_replay_engine.py::TestGetStep::test_session_not_found_raises PASSED [ 91%]
+tests/unit/test_replay_engine.py::TestGetStep::test_step_with_error PASSED [ 91%]
+tests/unit/test_replay_engine.py::TestGetTimeline::test_returns_timeline_entries PASSED [ 91%]
+tests/unit/test_replay_engine.py::TestGetTimeline::test_timeline_order PASSED [ 91%]
+tests/unit/test_replay_engine.py::TestGetTimeline::test_timeline_fields PASSED [ 92%]
+tests/unit/test_replay_engine.py::TestGetTimeline::test_session_not_found_raises PASSED [ 92%]
+tests/unit/test_replay_engine.py::TestReplayAPI::test_get_replay_success PASSED [ 92%]
+tests/unit/test_replay_engine.py::TestReplayAPI::test_get_replay_step_success PASSED [ 92%]
+tests/unit/test_replay_engine.py::TestReplayAPI::test_get_replay_not_found PASSED [ 92%]
+tests/unit/test_replay_engine.py::TestReplayAPI::test_get_replay_step_not_found PASSED [ 92%]
+tests/unit/test_replay_engine.py::TestReplayAPI::test_replay_response_structure PASSED [ 93%]
+tests/unit/test_template_registry.py::TestRegisterTemplate::test_register_single_template PASSED [ 93%]
+tests/unit/test_template_registry.py::TestRegisterTemplate::test_register_overwrites_existing PASSED [ 93%]
+tests/unit/test_template_registry.py::TestRegisterTemplate::test_register_multiple_templates PASSED [ 93%]
+tests/unit/test_template_registry.py::TestGetTemplate::test_returns_correct_template PASSED [ 93%]
+tests/unit/test_template_registry.py::TestGetTemplate::test_raises_for_missing_template PASSED [ 94%]
+tests/unit/test_template_registry.py::TestGetTemplate::test_raises_for_empty_registry PASSED [ 94%]
+tests/unit/test_template_registry.py::TestListTemplates::test_empty_registry_returns_empty_list PASSED [ 94%]
+tests/unit/test_template_registry.py::TestListTemplates::test_returns_all_registered_templates PASSED [ 94%]
+tests/unit/test_template_registry.py::TestListTemplates::test_summary_contains_expected_fields PASSED [ 94%]
+tests/unit/test_template_registry.py::TestTemplateFieldsPreserved::test_all_fields_preserved PASSED [ 94%]
+tests/unit/test_template_registry.py::TestTemplateFieldsPreserved::test_template_without_encryption PASSED [ 95%]
+tests/unit/test_template_registry.py::TestTemplateFieldsPreserved::test_supported_formats PASSED [ 95%]
+tests/unit/test_tools.py::TestAllToolsRegistry::test_registry_contains_expected_keys PASSED [ 95%]
+tests/unit/test_tools.py::TestAllToolsRegistry::test_registry_values_are_callable PASSED [ 95%]
+tests/unit/test_tools.py::TestReadFile::test_reads_existing_file PASSED  [ 95%]
+tests/unit/test_tools.py::TestReadFile::test_reads_empty_file PASSED     [ 96%]
+tests/unit/test_tools.py::TestReadFile::test_raises_on_missing_file PASSED [ 96%]
+tests/unit/test_tools.py::TestReadFile::test_denies_read_when_outside_allowed_roots PASSED [ 96%]
+tests/unit/test_tools.py::TestReadFile::test_allows_read_when_within_allowed_roots PASSED [ 96%]
+tests/unit/test_tools.py::TestWriteFile::test_writes_content PASSED      [ 96%]
+tests/unit/test_tools.py::TestWriteFile::test_creates_parent_directories PASSED [ 97%]
+tests/unit/test_tools.py::TestWriteFile::test_overwrites_existing_file PASSED [ 97%]
+tests/unit/test_tools.py::TestWriteFile::test_denies_write_when_outside_allowed_roots PASSED [ 97%]
+tests/unit/test_tools.py::TestWriteFile::test_allows_write_when_within_allowed_roots PASSED [ 97%]
+tests/unit/test_tools.py::TestPythonRepl::test_simple_expression PASSED  [ 97%]
+tests/unit/test_tools.py::TestPythonRepl::test_multiline_code PASSED     [ 97%]
+tests/unit/test_tools.py::TestPythonRepl::test_syntax_error_returns_error PASSED [ 98%]
+tests/unit/test_tools.py::TestPythonRepl::test_no_output_returns_marker PASSED [ 98%]
+tests/unit/test_tools.py::TestPythonRepl::test_import_works PASSED       [ 98%]
+tests/unit/test_tools.py::TestShell::test_echo_command PASSED            [ 98%]
+tests/unit/test_tools.py::TestShell::test_invalid_command_returns_error PASSED [ 98%]
+tests/unit/test_tools.py::TestShell::test_platform_detection PASSED      [ 99%]
+tests/unit/test_tools.py::TestQueryFaiss::test_returns_error_when_no_context PASSED [ 99%]
+tests/unit/test_tools.py::TestQueryFaiss::test_returns_error_when_no_faiss_manager PASSED [ 99%]
+tests/unit/test_tools.py::TestQueryFaiss::test_delegates_to_faiss_manager PASSED [ 99%]
+tests/unit/test_tools.py::TestQueryFaiss::test_handles_faiss_manager_exception PASSED [ 99%]
+tests/unit/test_tools.py::TestReadWriteRoundTrip::test_write_then_read_returns_original PASSED [100%]
+
+================================== FAILURES ===================================
+___________ TestChatWebSocket.test_chat_sends_tokens_then_response ____________
+C:\Users\ppaccaud\coderepos\haal-dex\backend\tests\integration\test_websocket_streaming.py:67: in test_chat_sends_tokens_then_response
+    ???
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\starlette\testclient.py:121: in __enter__
+    self._raise_on_close(message)
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\starlette\testclient.py:150: in _raise_on_close
+    raise WebSocketDisconnect(code=message.get("code", 1000), reason=message.get("reason", ""))
+E   starlette.websockets.WebSocketDisconnect
+____________ TestChatWebSocket.test_chat_maintains_session_context ____________
+C:\Users\ppaccaud\coderepos\haal-dex\backend\tests\integration\test_websocket_streaming.py:86: in test_chat_maintains_session_context
+    ???
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\starlette\testclient.py:121: in __enter__
+    self._raise_on_close(message)
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\starlette\testclient.py:150: in _raise_on_close
+    raise WebSocketDisconnect(code=message.get("code", 1000), reason=message.get("reason", ""))
+E   starlette.websockets.WebSocketDisconnect
+___________ TestChatWebSocket.test_chat_unknown_type_returns_error ____________
+C:\Users\ppaccaud\coderepos\haal-dex\backend\tests\integration\test_websocket_streaming.py:108: in test_chat_unknown_type_returns_error
+    ???
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\starlette\testclient.py:121: in __enter__
+    self._raise_on_close(message)
+..\..\..\..\AppData\Local\Programs\Python\Python313\Lib\site-packages\starlette\testclient.py:150: in _raise_on_close
+    raise WebSocketDisconnect(code=message.get("code", 1000), reason=message.get("reason", ""))
+E   starlette.websockets.WebSocketDisconnect
+________________ test_invalid_config_returns_non_empty_errors _________________
+C:\Users\ppaccaud\coderepos\haal-dex\backend\tests\property\test_config_validation_property.py:177: in test_invalid_config_returns_non_empty_errors
+    ???
+C:\Users\ppaccaud\coderepos\haal-dex\backend\tests\property\test_config_validation_property.py:185: in test_invalid_config_returns_non_empty_errors
+    ???
+E   AssertionError: Expected validation errors for config but got none.
+E     Config: PipelineConfig(name='test-pipeline', agents=[AgentConfig(name='agent1', model='bedrock/claude-3-sonnet', provider_config=ProviderConfig(provider_type='bedrock', model_id='anthropic.claude-3-sonnet-20240229-v1:0', inference_profile_id=None, profile=None, endpoint=None, api_key=None, region=None, temperature=0.7, max_tokens=2048, oauth_config=None), description='A test agent', system_prompt=None, faiss_indexes=[], tools=[], template=None)], output=OutputConfig(template='default', formats=['pdf']), execution_timeout=600)
+E   assert 0 > 0
+E    +  where 0 = len([])
+E   Falsifying example: test_invalid_config_returns_non_empty_errors(
+E       config=PipelineConfig(name='test-pipeline',
+E        agents=[AgentConfig(name='agent1',
+E          model='bedrock/claude-3-sonnet',
+E          provider_config=ProviderConfig(provider_type='bedrock',
+E           model_id='anthropic.claude-3-sonnet-20240229-v1:0',
+E           inference_profile_id=None,
+E           profile=None,
+E           endpoint=None,
+E           api_key=None,
+E           region=None,
+E           temperature=0.7,
+E           max_tokens=2048,
+E           oauth_config=None),
+E          description='A test agent',
+E          system_prompt=None,
+E          faiss_indexes=[],
+E          tools=[],
+E          template=None)],
+E        output=OutputConfig(template='default', formats=['pdf']),
+E        execution_timeout=600),
+E   )
+_____________ test_invalid_config_errors_identify_specific_fields _____________
+C:\Users\ppaccaud\coderepos\haal-dex\backend\tests\property\test_config_validation_property.py:196: in test_invalid_config_errors_identify_specific_fields
+    ???
+C:\Users\ppaccaud\coderepos\haal-dex\backend\tests\property\test_config_validation_property.py:204: in test_invalid_config_errors_identify_specific_fields
+    ???
+E   assert 0 > 0
+E    +  where 0 = len([])
+E   Falsifying example: test_invalid_config_errors_identify_specific_fields(
+E       config=PipelineConfig(name='test-pipeline',
+E        agents=[AgentConfig(name='agent1',
+E          model='bedrock/claude-3-sonnet',
+E          provider_config=ProviderConfig(provider_type='bedrock',
+E           model_id='anthropic.claude-3-sonnet-20240229-v1:0',
+E           inference_profile_id=None,
+E           profile=None,
+E           endpoint=None,
+E           api_key=None,
+E           region=None,
+E           temperature=0.7,
+E           max_tokens=2048,
+E           oauth_config=None),
+E          description='A test agent',
+E          system_prompt=None,
+E          faiss_indexes=[],
+E          tools=[],
+E          template=None)],
+E        output=OutputConfig(template='default', formats=['pdf']),
+E        execution_timeout=600),
+E   )
+________________ TestValidConfig.test_all_valid_output_formats ________________
+C:\Users\ppaccaud\coderepos\haal-dex\backend\tests\unit\test_config_validator.py:78: in test_all_valid_output_formats
+    ???
+E   assert ['output: ppt...ate format).'] == []
+E     
+E     Left contains one more item: "output: pptx export requires template 'demo-slide-outline' (slide-outline intermediate format)."
+E     
+E     Full diff:
+E     - []
+E     + [
+E     +     "output: pptx export requires template 'demo-slide-outline' (slide-outline "
+E     +     'intermediate format).',
+E     + ]
+____________ TestProviderRequirements.test_bedrock_requires_region ____________
+C:\Users\ppaccaud\coderepos\haal-dex\backend\tests\unit\test_config_validator.py:156: in test_bedrock_requires_region
+    ???
+E   assert False
+E    +  where False = any(<generator object TestProviderRequirements.test_bedrock_requires_region.<locals>.<genexpr> at 0x0000024903670EE0>)
+______________________ TestFormatInputs.test_empty_files ______________________
+C:\Users\ppaccaud\coderepos\haal-dex\backend\tests\unit\test_pipeline_orchestrator.py:506: in test_empty_files
+    ???
+E   AssertionError: assert 'No input text was provided.' == ''
+E     
+E     + No input text was provided.
+============================== warnings summary ===============================
+tests/property/test_faiss_property.py::test_faiss_accepts_1_to_4_indexes
+  <frozen importlib._bootstrap>:488: DeprecationWarning: builtin type SwigPyPacked has no __module__ attribute
+
+tests/property/test_faiss_property.py::test_faiss_accepts_1_to_4_indexes
+  <frozen importlib._bootstrap>:488: DeprecationWarning: builtin type SwigPyObject has no __module__ attribute
+
+tests/property/test_faiss_property.py::test_faiss_accepts_1_to_4_indexes
+  <frozen importlib._bootstrap>:488: DeprecationWarning: builtin type swigvarlink has no __module__ attribute
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/integration/test_websocket_streaming.py::TestChatWebSocket::test_chat_sends_tokens_then_response
+FAILED tests/integration/test_websocket_streaming.py::TestChatWebSocket::test_chat_maintains_session_context
+FAILED tests/integration/test_websocket_streaming.py::TestChatWebSocket::test_chat_unknown_type_returns_error
+FAILED tests/property/test_config_validation_property.py::test_invalid_config_returns_non_empty_errors
+FAILED tests/property/test_config_validation_property.py::test_invalid_config_errors_identify_specific_fields
+FAILED tests/unit/test_config_validator.py::TestValidConfig::test_all_valid_output_formats
+FAILED tests/unit/test_config_validator.py::TestProviderRequirements::test_bedrock_requires_region
+FAILED tests/unit/test_pipeline_orchestrator.py::TestFormatInputs::test_empty_files
+============ 8 failed, 530 passed, 3 warnings in 130.91s (0:02:10) ============

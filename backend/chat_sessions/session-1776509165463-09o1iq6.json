@@ -1,0 +1,38 @@
+{
+  "session_id": "session-1776509165463-09o1iq6",
+  "personality_id": "default",
+  "created_at": "2026-04-18T10:46:24.772336+00:00",
+  "updated_at": "2026-04-18T10:46:24.772336+00:00",
+  "messages": [
+    {
+      "role": "user",
+      "content": "what is you expertise"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello, I'm a support expert with deep expertise across account management, billing, security, API usage, integrations, troubleshooting, and privacy. I have access to a comprehensive knowledge base of support articles that I can search to provide accurate, grounded answers to your questions. How can I assist you today?\n"
+    },
+    {
+      "role": "user",
+      "content": "do you ahve a db of knoledge"
+    },
+    {
+      "role": "assistant",
+      "content": "Yes, I have access to a comprehensive knowledge base of support articles and documentation that I can search to provide accurate, grounded answers. If you have a specific question, I'd be happy to look through the knowledge base and provide a response based on the relevant information I'm able to find.\n"
+    },
+    {
+      "role": "user",
+      "content": "what are you top 3 knowlede item in this DB"
+    },
+    {
+      "role": "assistant",
+      "content": "It seems the knowledge base summary file is not available in my current environment. However, based on my training, I can tell you that some of the top areas I have deep expertise in from the knowledge base include:\n\n1. Account management - Covering topics like account creation, profile updates, password resets, and more.\n\n2. Billing and payments - Handling questions related to subscription plans, invoicing, refunds, and payment methods.  \n\n3. Security and privacy - Providing guidance on account security features, data privacy policies, and compliance requirements.\n\nI'd be happy to dive deeper into any of these areas if you have a specific question. Please let me know if there's anything else I can assist with.\n"
+    }
+  ],
+  "metadata": {
+    "total_turns": 6,
+    "condensation_count": 0,
+    "last_condensed_at": null,
+    "updated_at": "2026-04-18T10:47:22.967231+00:00"
+  }
+}

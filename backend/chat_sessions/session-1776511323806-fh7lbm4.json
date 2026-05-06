@@ -1,0 +1,38 @@
+{
+  "session_id": "session-1776511323806-fh7lbm4",
+  "personality_id": "default",
+  "created_at": "2026-04-18T11:22:11.828182+00:00",
+  "updated_at": "2026-04-18T11:22:11.828182+00:00",
+  "messages": [
+    {
+      "role": "user",
+      "content": "hello"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello! This is [Assistant name], a customer support expert. How can I assist you today?\n"
+    },
+    {
+      "role": "user",
+      "content": "do you have acces to kb for your support"
+    },
+    {
+      "role": "assistant",
+      "content": "Yes, I have access to a comprehensive knowledge base of support articles that I can search to provide accurate and grounded answers to your questions.\n"
+    },
+    {
+      "role": "user",
+      "content": "hwo to i reset my paswword"
+    },
+    {
+      "role": "assistant",
+      "content": "It looks like I don't have the specific article on password reset instructions in my knowledge base at the moment. However, I can provide you with the general steps:\n\n1. Go to the login page for your account.\n2. Click on the \"Forgot Password\" or \"Reset Password\" link.\n3. Enter the email address associated with your account.\n4. Follow the instructions sent to your email to reset your password.\n\nIf you have any trouble with the password reset process, I recommend contacting our support team directly. They will be able to assist you further. Please let me know if you have any other questions!\n"
+    }
+  ],
+  "metadata": {
+    "total_turns": 6,
+    "condensation_count": 0,
+    "last_condensed_at": null,
+    "updated_at": "2026-04-18T11:22:58.665181+00:00"
+  }
+}

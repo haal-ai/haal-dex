@@ -1,0 +1,22 @@
+{
+  "session_id": "session-1776511766779-63q4awa",
+  "personality_id": "default",
+  "created_at": "2026-04-18T11:29:35.489560+00:00",
+  "updated_at": "2026-04-18T11:29:35.489560+00:00",
+  "messages": [
+    {
+      "role": "user",
+      "content": "how do I reset my password\""
+    },
+    {
+      "role": "assistant",
+      "content": "\n\nIt looks like I don't have access to the password reset instructions document in my knowledge base. Let me provide the high-level steps instead:\n\n1. Go to the login page on our website and click the \"Forgot Password\" link.\n2. Enter the email address associated with your account.\n3. You will receive an email with instructions to reset your password. Follow the steps in that email.\n4. Once you've reset your password, you should be able to log in with the new password.\n\nIf you have any trouble following these steps, please contact our support team directly and we'll be happy to assist you further. Let me know if you need anything else!\n"
+    }
+  ],
+  "metadata": {
+    "total_turns": 2,
+    "condensation_count": 0,
+    "last_condensed_at": null,
+    "updated_at": "2026-04-18T11:29:40.776971+00:00"
+  }
+}

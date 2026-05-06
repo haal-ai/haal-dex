@@ -25,6 +25,16 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+if faiss is None:
+    logger.warning(
+        "faiss-cpu is not installed; FAISS vector retrieval will be disabled."
+    )
+if SentenceTransformer is None:
+    logger.warning(
+        "sentence-transformers is not installed; "
+        "FAISS embedding-based retrieval will be disabled."
+    )
+
 MAX_INDEXES = 4
 
 

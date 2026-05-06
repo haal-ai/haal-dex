@@ -1,0 +1,22 @@
+{
+  "session_id": "session-1776510384873-wy9e0d0",
+  "personality_id": "default",
+  "created_at": "2026-04-18T11:06:36.914054+00:00",
+  "updated_at": "2026-04-18T11:06:36.914054+00:00",
+  "messages": [
+    {
+      "role": "user",
+      "content": "do yu have a kb"
+    },
+    {
+      "role": "assistant",
+      "content": "It looks like I don't have access to a knowledge base file at the moment. Could you please provide more details about what information you're looking for? I'd be happy to assist you directly or connect you with our support team if they can better address your needs.\n"
+    }
+  ],
+  "metadata": {
+    "total_turns": 2,
+    "condensation_count": 0,
+    "last_condensed_at": null,
+    "updated_at": "2026-04-18T11:06:40.587541+00:00"
+  }
+}
